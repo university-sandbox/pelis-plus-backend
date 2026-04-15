@@ -1,0 +1,61 @@
+# Java / JVM
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle (if added later)
+.gradle/
+build/
+out/
+
+# Spring Boot
+*.log
+logs/
+spring.log
+
+# Application local overrides / secrets
+.env
+.env.*
+!.env.example
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor (IntelliJ, Eclipse, VS Code, NetBeans)
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.factorypath
+.vscode/
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Test / coverage artifacts
+coverage/
+.jacoco/
+*.exec
+
+# Misc
+*.bak

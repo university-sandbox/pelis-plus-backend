@@ -1,0 +1,12 @@
+.git
+.gitignore
+.agents
+.claude
+.cortex
+skills-lock.json
+README.md
+LICENSE
+target
+.env
+.env.*
+!.env.example
