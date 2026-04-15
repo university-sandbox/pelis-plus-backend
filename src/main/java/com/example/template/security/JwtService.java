@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import javax.crypto.SecretKey;
@@ -24,7 +25,12 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(Map.of(), userDetails);
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof UserPrincipal principal) {
+            claims.put("role", principal.getUser().getRole().name().toLowerCase());
+            claims.put("userId", principal.getUser().getId().toString());
+        }
+        return generateToken(claims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {

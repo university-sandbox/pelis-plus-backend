@@ -20,6 +20,9 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false, length = 255)
+    private String name;
+
     @Column(nullable = false, unique = true, length = 190)
     private String email;
 
@@ -40,6 +43,14 @@ public class AppUser {
 
     public UUID getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {

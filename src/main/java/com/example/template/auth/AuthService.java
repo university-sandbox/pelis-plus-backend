@@ -5,6 +5,8 @@ import com.example.template.domain.AppUserRepository;
 import com.example.template.domain.Role;
 import com.example.template.security.JwtService;
 import com.example.template.security.UserPrincipal;
+import com.example.template.user.UserProfileDto;
+import com.example.template.user.UserService;
 import java.util.Locale;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,17 +20,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
     public AuthService(
         AppUserRepository appUserRepository,
         PasswordEncoder passwordEncoder,
         JwtService jwtService,
-        AuthenticationManager authenticationManager
+        AuthenticationManager authenticationManager,
+        UserService userService
     ) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userService = userService;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -39,6 +44,7 @@ public class AuthService {
         }
 
         AppUser user = new AppUser();
+        user.setName(request.name().trim());
         user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setRole(Role.USER);
@@ -52,8 +58,9 @@ public class AuthService {
             "Bearer",
             jwtService.extractExpiration(token),
             savedUser.getId(),
+            savedUser.getName(),
             savedUser.getEmail(),
-            savedUser.getRole()
+            savedUser.getRole().name().toLowerCase()
         );
     }
 
@@ -75,8 +82,13 @@ public class AuthService {
             "Bearer",
             jwtService.extractExpiration(token),
             user.getId(),
+            user.getName(),
             user.getEmail(),
-            user.getRole()
+            user.getRole().name().toLowerCase()
         );
+    }
+
+    public UserProfileDto me(UserPrincipal principal) {
+        return userService.getProfile(principal.getUser().getId());
     }
 }

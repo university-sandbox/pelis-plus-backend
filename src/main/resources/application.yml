@@ -2,15 +2,15 @@ spring:
   config:
     import: optional:file:.env[.properties]
   application:
-    name: springboot-jwt-postgres-template
+    name: pelis-plus-backend
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/template_db}
-    username: ${DB_USERNAME:template_user}
-    password: ${DB_PASSWORD:template_password}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/pelisplus_db}
+    username: ${DB_USERNAME:pelisplus_user}
+    password: ${DB_PASSWORD:pelisplus_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
@@ -20,6 +20,8 @@ spring:
     locations: classpath:db/migration
 
 server:
+  servlet:
+    context-path: /api
   port: ${SERVER_PORT:8080}
 
 app:
@@ -27,7 +29,7 @@ app:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}
       expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
-      issuer: ${JWT_ISSUER:springboot-jwt-template}
+      issuer: ${JWT_ISSUER:pelis-plus}
 
 springdoc:
   api-docs:

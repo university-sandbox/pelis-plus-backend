@@ -44,18 +44,25 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
-                .authorizeHttpRequests(auth -> auth
+            .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/health").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/health").permitAll()
+                .requestMatchers(HttpMethod.GET, "/movies/genres").permitAll()
+                .requestMatchers(HttpMethod.GET, "/movies").permitAll()
+                .requestMatchers(HttpMethod.GET, "/movies/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/venues/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/snacks/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/memberships/plans").permitAll()
                 .requestMatchers(
                     "/swagger-ui.html",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health"
                 ).permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated())
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
