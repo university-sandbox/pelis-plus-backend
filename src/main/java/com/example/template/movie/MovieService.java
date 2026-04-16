@@ -109,7 +109,7 @@ public class MovieService {
         }
     }
 
-    MovieDto toDto(Movie movie) {
+    public MovieDto toDto(Movie movie) {
         List<GenreDto> genreDtos = movie.getGenres().stream()
             .map(g -> new GenreDto(g.getId(), g.getName()))
             .toList();

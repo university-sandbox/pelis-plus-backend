@@ -40,7 +40,7 @@ public class SnackService {
             .toList();
     }
 
-    SnackDto toDto(Snack snack) {
+    public SnackDto toDto(Snack snack) {
         List<SnackOption> options = snackOptionRepository.findBySnackIdOrderByDisplayOrder(snack.getId());
         List<SnackOptionDto> optionDtos = options.stream().map(opt -> {
             List<String> choices = snackChoiceRepository.findByOptionIdOrderByDisplayOrder(opt.getId())
