@@ -18,6 +18,7 @@ public record MovieDto(
     String originalLanguage,
     Double popularity,
     Boolean adult,
-    Boolean video
+    Boolean video,
+    Boolean active
 ) {
 }

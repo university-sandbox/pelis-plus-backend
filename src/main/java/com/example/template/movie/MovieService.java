@@ -131,7 +131,8 @@ public class MovieService {
             movie.getOriginalLanguage(),
             movie.getPopularity(),
             movie.getAdult(),
-            movie.getVideo()
+            movie.getVideo(),
+            movie.getActive()
         );
     }
 }
