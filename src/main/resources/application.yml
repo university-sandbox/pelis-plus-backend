@@ -30,6 +30,8 @@ app:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}
       expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
       issuer: ${JWT_ISSUER:pelis-plus}
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
 
 springdoc:
   api-docs:
