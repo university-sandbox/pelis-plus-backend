@@ -18,7 +18,7 @@
     <description>Spring Boot boilerplate with JWT, PostgreSQL, and Swagger</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>21</java.version>
         <springdoc.version>3.0.2</springdoc.version>
         <jjwt.version>0.13.0</jjwt.version>
     </properties>
