@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${APP_PUBLIC_BASE_URL:http://localhost:${SERVER_PORT:8080}}")
+    @Value("${APP_PUBLIC_BASE_URL:http://localhost:${SERVER_PORT:8080}}/api")
     private String publicBaseUrl;
 
     @Bean
