@@ -68,6 +68,7 @@ Spring Boot automatically reads `.env` from the project root.
 
 ## 7. Swagger / OpenAPI
 
+- http://localhost:8080/api/swagger-ui.html
 - Swagger UI: `${APP_PUBLIC_BASE_URL}${SWAGGER_UI_PATH}`
 - OpenAPI JSON: `${APP_PUBLIC_BASE_URL}/v3/api-docs`
 - OpenAPI `servers` URL is taken from `.env` variable `APP_PUBLIC_BASE_URL`.
