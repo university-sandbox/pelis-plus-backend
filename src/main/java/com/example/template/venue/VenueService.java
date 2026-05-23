@@ -31,7 +31,10 @@ public class VenueService {
                 r.getName(),
                 r.getCapacity() != null ? r.getCapacity() : 0,
                 r.getRows() != null ? r.getRows() : 0,
-                r.getCols() != null ? r.getCols() : 0
+                r.getCols() != null ? r.getCols() : 0,
+                r.getActive(),
+                toRoomTypeDto(r.getRoomType()),
+                toRoomLayoutDto(r.getRoomLayout())
             ))
             .toList();
     }
@@ -47,7 +50,34 @@ public class VenueService {
             room.getName(),
             room.getCapacity() != null ? room.getCapacity() : 0,
             room.getRows() != null ? room.getRows() : 0,
-            room.getCols() != null ? room.getCols() : 0
+            room.getCols() != null ? room.getCols() : 0,
+            room.getActive(),
+            toRoomTypeDto(room.getRoomType()),
+            toRoomLayoutDto(room.getRoomLayout())
+        );
+    }
+
+    public RoomTypeDto toRoomTypeDto(RoomType roomType) {
+        if (roomType == null) return null;
+        return new RoomTypeDto(
+            roomType.getId().toString(),
+            roomType.getCode(),
+            roomType.getName(),
+            roomType.getDescription(),
+            roomType.getActive()
+        );
+    }
+
+    public RoomLayoutDto toRoomLayoutDto(RoomLayout roomLayout) {
+        if (roomLayout == null) return null;
+        return new RoomLayoutDto(
+            roomLayout.getId().toString(),
+            roomLayout.getName(),
+            roomLayout.getRows(),
+            roomLayout.getCols(),
+            roomLayout.getCapacity(),
+            roomLayout.getSeatMap(),
+            roomLayout.getActive()
         );
     }
 }

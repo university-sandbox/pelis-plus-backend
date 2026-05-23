@@ -1,5 +1,8 @@
 package com.example.template.movie;
 
+import com.example.template.screening.Screening;
+import com.example.template.screening.ScreeningRepository;
+import com.example.template.ticket.TicketRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -17,10 +20,19 @@ public class MovieService {
 
     private final MovieRepository movieRepository;
     private final GenreRepository genreRepository;
+    private final ScreeningRepository screeningRepository;
+    private final TicketRepository ticketRepository;
 
-    public MovieService(MovieRepository movieRepository, GenreRepository genreRepository) {
+    public MovieService(
+        MovieRepository movieRepository,
+        GenreRepository genreRepository,
+        ScreeningRepository screeningRepository,
+        TicketRepository ticketRepository
+    ) {
         this.movieRepository = movieRepository;
         this.genreRepository = genreRepository;
+        this.screeningRepository = screeningRepository;
+        this.ticketRepository = ticketRepository;
     }
 
     public MovieListResponse getMovies(String status, Long genreId, String search, int page) {
@@ -82,8 +94,20 @@ public class MovieService {
     public MovieDto toggleStatus(Long id) {
         Movie movie = movieRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Movie not found: " + id));
-        movie.setActive(!Boolean.TRUE.equals(movie.getActive()));
+        boolean newActive = !Boolean.TRUE.equals(movie.getActive());
+        movie.setActive(newActive);
+        if (!newActive) {
+            cancelScreeningsWithoutSoldTickets(movie.getId());
+        }
         return toDto(movieRepository.save(movie));
+    }
+
+    private void cancelScreeningsWithoutSoldTickets(Long movieId) {
+        List<Screening> activeScreenings = screeningRepository.findByMovieIdAndStatus(movieId, "active");
+        activeScreenings.stream()
+            .filter(screening -> ticketRepository.countByOrderTicketScreeningId(screening.getId()) == 0)
+            .forEach(screening -> screening.setStatus("cancelled"));
+        screeningRepository.saveAll(activeScreenings);
     }
 
     private void applyRequest(Movie movie, CreateMovieRequest request) {

@@ -3,6 +3,7 @@ spring:
     url: jdbc:h2:mem:template-test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
+    driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: create-drop

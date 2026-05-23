@@ -23,6 +23,14 @@ public class Room {
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_type_id", nullable = false)
+    private RoomType roomType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_layout_id", nullable = false)
+    private RoomLayout roomLayout;
+
     @Column(nullable = false)
     private String name;
 
@@ -36,6 +44,12 @@ public class Room {
 
     public Venue getVenue() { return venue; }
     public void setVenue(Venue venue) { this.venue = venue; }
+
+    public RoomType getRoomType() { return roomType; }
+    public void setRoomType(RoomType roomType) { this.roomType = roomType; }
+
+    public RoomLayout getRoomLayout() { return roomLayout; }
+    public void setRoomLayout(RoomLayout roomLayout) { this.roomLayout = roomLayout; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

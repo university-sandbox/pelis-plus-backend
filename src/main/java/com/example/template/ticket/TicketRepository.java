@@ -12,4 +12,6 @@ public interface TicketRepository extends JpaRepository<Ticket, UUID> {
     Optional<Ticket> findByIdAndOrderUserId(UUID id, UUID userId);
 
     List<Ticket> findByOrderId(UUID orderId);
+
+    long countByOrderTicketScreeningId(UUID screeningId);
 }

@@ -74,13 +74,22 @@ public class ScreeningService {
             .orElseThrow(() -> new EntityNotFoundException("Movie not found: " + request.movieId()));
         Room room = roomRepository.findById(request.roomId())
             .orElseThrow(() -> new EntityNotFoundException("Room not found: " + request.roomId()));
+        if (!Boolean.TRUE.equals(movie.getActive())) {
+            throw new IllegalArgumentException("Cannot create screening for inactive movie");
+        }
+        if (!Boolean.TRUE.equals(room.getActive())) {
+            throw new IllegalArgumentException("Cannot create screening in inactive room");
+        }
+        if (room.getRoomType() != null && !Boolean.TRUE.equals(room.getRoomType().getActive())) {
+            throw new IllegalArgumentException("Cannot create screening with inactive room type");
+        }
 
         Screening screening = new Screening();
         screening.setMovie(movie);
         screening.setRoom(room);
         screening.setDate(request.date());
         screening.setTime(request.time());
-        screening.setFormat(request.format());
+        screening.setFormat(resolveFormat(request, room));
         screening.setPrice(request.price());
         screening.setStatus("active");
 
@@ -100,16 +109,25 @@ public class ScreeningService {
         if (request.movieId() != null) {
             Movie movie = movieRepository.findById(request.movieId())
                 .orElseThrow(() -> new EntityNotFoundException("Movie not found"));
+            if (!Boolean.TRUE.equals(movie.getActive())) {
+                throw new IllegalArgumentException("Cannot assign inactive movie to screening");
+            }
             screening.setMovie(movie);
         }
         if (request.roomId() != null) {
             Room room = roomRepository.findById(request.roomId())
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+            if (!Boolean.TRUE.equals(room.getActive())) {
+                throw new IllegalArgumentException("Cannot assign inactive room to screening");
+            }
             screening.setRoom(room);
         }
         if (request.date() != null) screening.setDate(request.date());
         if (request.time() != null) screening.setTime(request.time());
         if (request.format() != null) screening.setFormat(request.format());
+        if (request.format() == null && request.roomId() != null) {
+            screening.setFormat(resolveFormat(request, screening.getRoom()));
+        }
         if (request.price() != null) screening.setPrice(request.price());
 
         return toDto(screeningRepository.save(screening));
@@ -134,10 +152,9 @@ public class ScreeningService {
     private void generateSeats(Screening screening, Room room) {
         int numRows = room.getRows() != null ? room.getRows() : 8;
         int numCols = room.getCols() != null ? room.getCols() : 10;
-        String[] rowLabels = {"A","B","C","D","E","F","G","H","I","J"};
 
         for (int r = 0; r < numRows; r++) {
-            String rowLabel = rowLabels[r];
+            String rowLabel = rowLabel(r);
             for (int c = 1; c <= numCols; c++) {
                 com.example.template.seat.Seat seat = new com.example.template.seat.Seat();
                 seat.setScreening(screening);
@@ -155,6 +172,23 @@ public class ScreeningService {
         }
     }
 
+    private String resolveFormat(CreateScreeningRequest request, Room room) {
+        if (request.format() != null && !request.format().isBlank()) {
+            return request.format();
+        }
+        if (room.getRoomType() != null) {
+            return room.getRoomType().getCode();
+        }
+        return "standard";
+    }
+
+    private String rowLabel(int index) {
+        if (index < 26) {
+            return String.valueOf((char) ('A' + index));
+        }
+        return "R" + (index + 1);
+    }
+
     ScreeningDto toDto(Screening screening) {
         Room room = screening.getRoom();
         Venue venue = room.getVenue();
@@ -167,7 +201,28 @@ public class ScreeningService {
             room.getName(),
             room.getCapacity() != null ? room.getCapacity() : 0,
             room.getRows() != null ? room.getRows() : 0,
-            room.getCols() != null ? room.getCols() : 0
+            room.getCols() != null ? room.getCols() : 0,
+            room.getActive(),
+            room.getRoomType() != null
+                ? new com.example.template.venue.RoomTypeDto(
+                    room.getRoomType().getId().toString(),
+                    room.getRoomType().getCode(),
+                    room.getRoomType().getName(),
+                    room.getRoomType().getDescription(),
+                    room.getRoomType().getActive()
+                )
+                : null,
+            room.getRoomLayout() != null
+                ? new com.example.template.venue.RoomLayoutDto(
+                    room.getRoomLayout().getId().toString(),
+                    room.getRoomLayout().getName(),
+                    room.getRoomLayout().getRows(),
+                    room.getRoomLayout().getCols(),
+                    room.getRoomLayout().getCapacity(),
+                    room.getRoomLayout().getSeatMap(),
+                    room.getRoomLayout().getActive()
+                )
+                : null
         );
 
         int totalSeats = seatRepository.findByScreeningId(screening.getId()).size();
