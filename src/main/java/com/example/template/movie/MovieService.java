@@ -62,6 +62,13 @@ public class MovieService {
         );
     }
 
+    public List<MovieDto> getAdminMovies() {
+        return movieRepository.findAllMovies(PageRequest.of(0, 200))
+            .getContent().stream()
+            .map(this::toDto)
+            .toList();
+    }
+
     public MovieDto getMovie(Long id) {
         Movie movie = movieRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Movie not found: " + id));

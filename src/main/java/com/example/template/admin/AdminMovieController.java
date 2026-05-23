@@ -2,10 +2,8 @@ package com.example.template.admin;
 
 import com.example.template.movie.CreateMovieRequest;
 import com.example.template.movie.MovieDto;
-import com.example.template.movie.MovieRepository;
 import com.example.template.movie.MovieService;
 import java.util.List;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,20 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminMovieController {
 
     private final MovieService movieService;
-    private final MovieRepository movieRepository;
 
-    public AdminMovieController(MovieService movieService, MovieRepository movieRepository) {
+    public AdminMovieController(MovieService movieService) {
         this.movieService = movieService;
-        this.movieRepository = movieRepository;
     }
 
     @GetMapping
     public ResponseEntity<List<MovieDto>> listMovies() {
-        List<MovieDto> movies = movieRepository.findAllMovies(PageRequest.of(0, 200))
-            .getContent().stream()
-            .map(movieService::toDto)
-            .toList();
-        return ResponseEntity.ok(movies);
+        return ResponseEntity.ok(movieService.getAdminMovies());
     }
 
     @PostMapping
