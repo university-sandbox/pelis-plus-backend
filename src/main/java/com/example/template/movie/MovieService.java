@@ -37,7 +37,12 @@ public class MovieService {
 
     public MovieListResponse getMovies(String status, Long genreId, String search, int page) {
         int zeroBasedPage = Math.max(0, page - 1);
-        Pageable pageable = PageRequest.of(zeroBasedPage, PAGE_SIZE, Sort.by("popularity").descending());
+        Sort sort = Sort.by(
+            Sort.Order.desc("releaseDate"),
+            Sort.Order.desc("popularity"),
+            Sort.Order.asc("title")
+        );
+        Pageable pageable = PageRequest.of(zeroBasedPage, PAGE_SIZE, sort);
 
         Page<Movie> moviePage;
         if (search != null && !search.isBlank()) {
