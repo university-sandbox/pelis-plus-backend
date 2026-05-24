@@ -19,6 +19,7 @@ public record MovieDto(
     Double popularity,
     Boolean adult,
     Boolean video,
+    String trailerYoutubeKey,
     Boolean active
 ) {
 }

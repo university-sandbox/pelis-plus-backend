@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -20,4 +21,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     @Query("SELECT m FROM Movie m")
     Page<Movie> findAllMovies(Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Movie m SET m.active = false WHERE m.active = true AND m.id NOT IN :activeIds")
+    int deactivateMoviesNotIn(@Param("activeIds") List<Long> activeIds);
 }

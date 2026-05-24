@@ -33,6 +33,7 @@ public class Movie {
     private Double popularity;
     private Boolean adult;
     private Boolean video;
+    private String trailerYoutubeKey;
     private String status;
     private Boolean active = true;
 
@@ -82,6 +83,9 @@ public class Movie {
 
     public Boolean getVideo() { return video; }
     public void setVideo(Boolean video) { this.video = video; }
+
+    public String getTrailerYoutubeKey() { return trailerYoutubeKey; }
+    public void setTrailerYoutubeKey(String trailerYoutubeKey) { this.trailerYoutubeKey = trailerYoutubeKey; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

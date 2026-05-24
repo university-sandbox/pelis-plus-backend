@@ -170,6 +170,18 @@ mvn clean verify
 mvn spring-boot:run
 ```
 
+### Run TMDB movie sync manually
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--sync-tmdb-movies --server.port=0"
+```
+
+With Docker Compose:
+
+```bash
+docker compose run --rm api --sync-tmdb-movies --server.port=0
+```
+
 ### Run API + DB with Docker Compose
 
 ```bash

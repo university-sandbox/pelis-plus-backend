@@ -132,6 +132,7 @@ public class MovieService {
         if (request.popularity() != null) movie.setPopularity(request.popularity());
         if (request.adult() != null) movie.setAdult(request.adult());
         if (request.video() != null) movie.setVideo(request.video());
+        if (request.trailerYoutubeKey() != null) movie.setTrailerYoutubeKey(request.trailerYoutubeKey());
         if (request.active() != null) movie.setActive(request.active());
 
         if (request.genreIds() != null) {
@@ -163,6 +164,7 @@ public class MovieService {
             movie.getPopularity(),
             movie.getAdult(),
             movie.getVideo(),
+            movie.getTrailerYoutubeKey(),
             movie.getActive()
         );
     }

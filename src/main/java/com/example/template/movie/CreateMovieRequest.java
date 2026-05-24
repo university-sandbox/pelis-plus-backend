@@ -18,6 +18,7 @@ public record CreateMovieRequest(
     Double popularity,
     Boolean adult,
     Boolean video,
+    String trailerYoutubeKey,
     Boolean active
 ) {
 }

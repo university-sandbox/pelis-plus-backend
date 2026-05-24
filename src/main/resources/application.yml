@@ -25,6 +25,16 @@ server:
   forward-headers-strategy: framework
 
 app:
+  tmdb:
+    enabled: ${TMDB_SYNC_ENABLED:true}
+    base-url: ${TMDB_BASE_URL:https://api.themoviedb.org/3}
+    access-token: ${TMDB_ACCESS_TOKEN:}
+    api-key: ${TMDB_API_KEY:}
+    language: ${TMDB_LANGUAGE:es-PE}
+    region: ${TMDB_REGION:PE}
+    max-pages-per-list: ${TMDB_MAX_PAGES_PER_LIST:3}
+    sync-cron: ${TMDB_SYNC_CRON:0 0 7 * * *}
+    time-zone: ${TMDB_TIME_ZONE:America/Lima}
   security:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}
