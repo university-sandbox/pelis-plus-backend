@@ -36,7 +36,7 @@ CORS_ALLOWED_ORIGINS=https://pelisplus.nexoralabs.com
 # Generate a secure Base64 secret (at least 256 bits)
 # Run: openssl rand -base64 32
 JWT_SECRET=your_base64_secret_here
-JWT_EXPIRATION_MINUTES=60
+JWT_EXPIRATION_MINUTES=216000
 JWT_ISSUER=pelis-plus
 
 SWAGGER_ENABLED=false
