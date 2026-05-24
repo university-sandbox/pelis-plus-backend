@@ -10,6 +10,7 @@ import com.example.template.user.UserService;
 import java.util.Locale;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +90,9 @@ public class AuthService {
     }
 
     public UserProfileDto me(UserPrincipal principal) {
+        if (principal == null) {
+            throw new AuthenticationCredentialsNotFoundException("Authentication required");
+        }
         return userService.getProfile(principal.getUser().getId());
     }
 }

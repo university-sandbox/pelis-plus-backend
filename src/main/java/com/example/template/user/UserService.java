@@ -61,6 +61,7 @@ public class UserService {
         appUserRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public UserProfileDto getProfile(UUID userId) {
         AppUser user = appUserRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("User not found"));
