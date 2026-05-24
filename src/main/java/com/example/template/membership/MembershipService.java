@@ -56,7 +56,10 @@ public class MembershipService {
 
     @Transactional
     public String subscribe(UUID planId, UUID userId) {
-        // Return a mock form token for payment
+        planRepository.findById(planId)
+            .orElseThrow(() -> new EntityNotFoundException("Plan not found: " + planId));
+
+        // Return a mock form token for payment handoff. Activation happens only after payment confirmation.
         String formToken = "MOCK_IZIPAY_MEMBERSHIP_" + userId.toString().substring(0, 8).toUpperCase() + "_" + planId.toString().substring(0, 8).toUpperCase();
         return formToken;
     }
