@@ -1,6 +1,5 @@
 package com.example.template.venue;
 
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +23,7 @@ public class VenueService {
 
     public Page<VenueDto> getVenues(int page) {
         return venueRepository.findByActiveTrue(PageRequest.of(Math.max(0, page - 1), PAGE_SIZE, Sort.by("name").ascending()))
-            .map(v -> new VenueDto(v.getId().toString(), v.getName(), v.getAddress(), v.getCity()))
+            .map(v -> new VenueDto(v.getId().toString(), v.getName(), v.getAddress(), v.getCity()));
     }
 
     public Page<RoomDto> getRooms(UUID venueId, int page) {
