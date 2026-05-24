@@ -67,11 +67,14 @@ public class MovieService {
         );
     }
 
-    public List<MovieDto> getAdminMovies() {
-        return movieRepository.findAllMovies(PageRequest.of(0, 200))
-            .getContent().stream()
-            .map(this::toDto)
-            .toList();
+    public Page<MovieDto> getAdminMovies(int page) {
+        Sort sort = Sort.by(
+            Sort.Order.desc("releaseDate"),
+            Sort.Order.desc("popularity"),
+            Sort.Order.asc("title")
+        );
+        return movieRepository.findAllMovies(PageRequest.of(Math.max(0, page - 1), PAGE_SIZE, sort))
+            .map(this::toDto);
     }
 
     public MovieDto getMovie(Long id) {

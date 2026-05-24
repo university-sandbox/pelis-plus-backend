@@ -1,8 +1,8 @@
 package com.example.template.admin;
 
 import com.example.template.venue.RoomDto;
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,8 +28,10 @@ public class AdminRoomController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RoomDto>> listRooms() {
-        return ResponseEntity.ok(adminRoomService.listRooms());
+    public ResponseEntity<Page<RoomDto>> listRooms(
+        @RequestParam(defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(adminRoomService.listRooms(page));
     }
 
     @PostMapping

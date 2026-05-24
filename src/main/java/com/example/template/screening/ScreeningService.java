@@ -46,20 +46,18 @@ public class ScreeningService {
         this.seatService = seatService;
     }
 
-    public List<ScreeningDto> getForMovie(Long movieId, String venueId, String date, String format) {
+    public Page<ScreeningDto> getForMovie(Long movieId, String venueId, String date, String format, int page) {
         UUID venueUuid = (venueId != null && !venueId.isBlank()) ? UUID.fromString(venueId) : null;
+        LocalDate screeningDate = (date != null && !date.isBlank()) ? LocalDate.parse(date) : null;
         String formatParam = (format != null && !format.isBlank()) ? format : null;
 
-        List<Screening> screenings = screeningRepository.findFiltered(movieId, venueUuid, formatParam);
-
-        // Filter by date in memory if provided (simpler than JPQL date string comparison)
-        if (date != null && !date.isBlank()) {
-            screenings = screenings.stream()
-                .filter(s -> s.getDate().toString().equals(date))
-                .toList();
-        }
-
-        return screenings.stream().map(this::toDto).toList();
+        return screeningRepository.findFiltered(
+            movieId,
+            venueUuid,
+            screeningDate,
+            formatParam,
+            PageRequest.of(Math.max(0, page - 1), 20, Sort.by("date").ascending().and(Sort.by("time").ascending()))
+        ).map(this::toDto);
     }
 
     public ScreeningDto getDetail(UUID id) {

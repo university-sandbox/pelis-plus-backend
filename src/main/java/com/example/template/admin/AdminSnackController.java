@@ -6,8 +6,10 @@ import com.example.template.snack.SnackRepository;
 import com.example.template.snack.SnackService;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,8 +37,12 @@ public class AdminSnackController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SnackDto>> listSnacks() {
-        return ResponseEntity.ok(snackRepository.findAll().stream().map(snackService::toDto).toList());
+    public ResponseEntity<Page<SnackDto>> listSnacks(
+        @RequestParam(defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(snackRepository.findAll(
+            PageRequest.of(Math.max(0, page - 1), 20, Sort.by("category").ascending().and(Sort.by("name").ascending()))
+        ).map(snackService::toDto));
     }
 
     @PostMapping

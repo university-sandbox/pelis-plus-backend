@@ -3,6 +3,9 @@ package com.example.template.ticket;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +19,11 @@ public class TicketService {
         this.ticketRepository = ticketRepository;
     }
 
-    public List<TicketDto> getMyTickets(UUID userId) {
-        return ticketRepository.findByOrderUserId(userId).stream()
-            .map(this::toDto)
-            .toList();
+    public Page<TicketDto> getMyTickets(UUID userId, int page) {
+        return ticketRepository.findByOrderUserId(
+            userId,
+            PageRequest.of(Math.max(0, page - 1), 20, Sort.by("issuedAt").descending())
+        ).map(this::toDto);
     }
 
     public TicketDto getTicket(UUID id, UUID userId) {

@@ -1,12 +1,17 @@
 package com.example.template.snack;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
 public class SnackService {
+
+    private static final int PAGE_SIZE = 20;
 
     private final SnackRepository snackRepository;
     private final SnackOptionRepository snackOptionRepository;
@@ -22,14 +27,12 @@ public class SnackService {
         this.snackChoiceRepository = snackChoiceRepository;
     }
 
-    public List<SnackDto> getSnacks(String category) {
-        List<Snack> snacks;
+    public Page<SnackDto> getSnacks(String category, int page) {
+        PageRequest pageRequest = PageRequest.of(Math.max(0, page - 1), PAGE_SIZE, Sort.by("category").ascending().and(Sort.by("name").ascending()));
         if (category != null && !category.isBlank()) {
-            snacks = snackRepository.findByCategoryAndStatus(category, "active");
-        } else {
-            snacks = snackRepository.findByStatus("active");
+            return snackRepository.findByCategoryAndStatus(category, "active", pageRequest).map(this::toDto);
         }
-        return snacks.stream().map(this::toDto).toList();
+        return snackRepository.findByStatus("active", pageRequest).map(this::toDto);
     }
 
     public List<String> getCategories() {

@@ -14,11 +14,13 @@ public interface ScreeningRepository extends JpaRepository<Screening, UUID> {
 
     List<Screening> findByMovieId(Long movieId);
 
-    @Query("SELECT s FROM Screening s WHERE s.movie.id = :movieId AND (:venueId IS NULL OR s.room.venue.id = :venueId) AND (:format IS NULL OR s.format = :format) AND s.status = 'active'")
-    List<Screening> findFiltered(
+    @Query("SELECT s FROM Screening s WHERE s.movie.id = :movieId AND (:venueId IS NULL OR s.room.venue.id = :venueId) AND (:date IS NULL OR s.date = :date) AND (:format IS NULL OR s.format = :format) AND s.status = 'active'")
+    Page<Screening> findFiltered(
         @Param("movieId") Long movieId,
         @Param("venueId") UUID venueId,
-        @Param("format") String format
+        @Param("date") java.time.LocalDate date,
+        @Param("format") String format,
+        Pageable pageable
     );
 
     @Query("SELECT s FROM Screening s WHERE (:status IS NULL OR s.status = :status) AND (:movieId IS NULL OR s.movie.id = :movieId)")

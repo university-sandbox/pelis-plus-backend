@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -159,10 +162,11 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderDto> getMyOrders(UUID userId) {
-        return orderRepository.findByUserId(userId).stream()
-            .map(this::toDto)
-            .toList();
+    public Page<OrderDto> getMyOrders(UUID userId, int page) {
+        return orderRepository.findByUserId(
+            userId,
+            PageRequest.of(Math.max(0, page - 1), 20, Sort.by("createdAt").descending())
+        ).map(this::toDto);
     }
 
     private OrderDto toDto(Order order) {

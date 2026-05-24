@@ -1,6 +1,7 @@
 package com.example.template.snack;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +19,11 @@ public class SnackController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SnackDto>> getSnacks(
-        @RequestParam(required = false) String category
+    public ResponseEntity<Page<SnackDto>> getSnacks(
+        @RequestParam(required = false) String category,
+        @RequestParam(defaultValue = "1") int page
     ) {
-        return ResponseEntity.ok(snackService.getSnacks(category));
+        return ResponseEntity.ok(snackService.getSnacks(category, page));
     }
 
     @GetMapping("/categories")

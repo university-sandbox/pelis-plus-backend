@@ -2,12 +2,17 @@ package com.example.template.venue;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
 public class VenueService {
+
+    private static final int PAGE_SIZE = 20;
 
     private final VenueRepository venueRepository;
     private final RoomRepository roomRepository;
@@ -17,14 +22,13 @@ public class VenueService {
         this.roomRepository = roomRepository;
     }
 
-    public List<VenueDto> getVenues() {
-        return venueRepository.findByActiveTrue().stream()
+    public Page<VenueDto> getVenues(int page) {
+        return venueRepository.findByActiveTrue(PageRequest.of(Math.max(0, page - 1), PAGE_SIZE, Sort.by("name").ascending()))
             .map(v -> new VenueDto(v.getId().toString(), v.getName(), v.getAddress(), v.getCity()))
-            .toList();
     }
 
-    public List<RoomDto> getRooms(UUID venueId) {
-        return roomRepository.findByVenueIdAndActiveTrue(venueId).stream()
+    public Page<RoomDto> getRooms(UUID venueId, int page) {
+        return roomRepository.findByVenueIdAndActiveTrue(venueId, PageRequest.of(Math.max(0, page - 1), PAGE_SIZE, Sort.by("name").ascending()))
             .map(r -> new RoomDto(
                 r.getId().toString(),
                 r.getVenue().getId().toString(),
@@ -35,8 +39,7 @@ public class VenueService {
                 r.getActive(),
                 toRoomTypeDto(r.getRoomType()),
                 toRoomLayoutDto(r.getRoomLayout())
-            ))
-            .toList();
+            ));
     }
 
     public VenueDto toDto(Venue venue) {

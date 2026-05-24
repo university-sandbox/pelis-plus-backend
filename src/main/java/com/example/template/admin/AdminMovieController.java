@@ -3,7 +3,7 @@ package com.example.template.admin;
 import com.example.template.movie.CreateMovieRequest;
 import com.example.template.movie.MovieDto;
 import com.example.template.movie.MovieService;
-import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,8 +29,10 @@ public class AdminMovieController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MovieDto>> listMovies() {
-        return ResponseEntity.ok(movieService.getAdminMovies());
+    public ResponseEntity<Page<MovieDto>> listMovies(
+        @RequestParam(defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(movieService.getAdminMovies(page));
     }
 
     @PostMapping

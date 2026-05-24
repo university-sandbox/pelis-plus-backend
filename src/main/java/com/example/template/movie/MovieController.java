@@ -3,6 +3,7 @@ package com.example.template.movie;
 import com.example.template.screening.ScreeningDto;
 import com.example.template.screening.ScreeningService;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,12 +44,13 @@ public class MovieController {
     }
 
     @GetMapping("/{id}/screenings")
-    public ResponseEntity<List<ScreeningDto>> getScreenings(
+    public ResponseEntity<Page<ScreeningDto>> getScreenings(
         @PathVariable Long id,
         @RequestParam(required = false) String venueId,
         @RequestParam(required = false) String date,
-        @RequestParam(required = false) String format
+        @RequestParam(required = false) String format,
+        @RequestParam(defaultValue = "1") int page
     ) {
-        return ResponseEntity.ok(screeningService.getForMovie(id, venueId, date, format));
+        return ResponseEntity.ok(screeningService.getForMovie(id, venueId, date, format, page));
     }
 }

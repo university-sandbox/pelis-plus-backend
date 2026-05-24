@@ -13,6 +13,9 @@ import com.example.template.venue.VenueService;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,10 +43,9 @@ public class AdminRoomService {
     }
 
     @Transactional(readOnly = true)
-    public List<RoomDto> listRooms() {
-        return roomRepository.findAll().stream()
-            .map(venueService::toRoomDto)
-            .toList();
+    public Page<RoomDto> listRooms(int page) {
+        return roomRepository.findAll(PageRequest.of(Math.max(0, page - 1), 20, Sort.by("name").ascending()))
+            .map(venueService::toRoomDto);
     }
 
     @Transactional

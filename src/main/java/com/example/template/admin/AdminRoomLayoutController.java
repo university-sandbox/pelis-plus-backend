@@ -4,8 +4,10 @@ import com.example.template.venue.RoomLayout;
 import com.example.template.venue.RoomLayoutDto;
 import com.example.template.venue.RoomLayoutRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,8 +33,12 @@ public class AdminRoomLayoutController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RoomLayoutDto>> listRoomLayouts() {
-        return ResponseEntity.ok(roomLayoutRepository.findAll().stream().map(this::toDto).toList());
+    public ResponseEntity<Page<RoomLayoutDto>> listRoomLayouts(
+        @RequestParam(defaultValue = "1") int page
+    ) {
+        return ResponseEntity.ok(roomLayoutRepository.findAll(
+            PageRequest.of(Math.max(0, page - 1), 20, Sort.by("name").ascending())
+        ).map(this::toDto));
     }
 
     @PostMapping
