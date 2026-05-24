@@ -33,7 +33,9 @@ app:
     language: ${TMDB_LANGUAGE:es-PE}
     region: ${TMDB_REGION:PE}
     max-pages-per-list: ${TMDB_MAX_PAGES_PER_LIST:3}
-    sync-cron: ${TMDB_SYNC_CRON:0 0 7 * * *}
+    release-lookback-days: ${TMDB_RELEASE_LOOKBACK_DAYS:7}
+    max-release-lookback-days: ${TMDB_MAX_RELEASE_LOOKBACK_DAYS:21}
+    sync-cron: ${TMDB_SYNC_CRON:0 0 23 * * SUN}
     time-zone: ${TMDB_TIME_ZONE:America/Lima}
   security:
     jwt:

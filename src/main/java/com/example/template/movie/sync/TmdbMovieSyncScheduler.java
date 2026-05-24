@@ -16,8 +16,8 @@ public class TmdbMovieSyncScheduler {
         this.syncService = syncService;
     }
 
-    @Scheduled(cron = "${app.tmdb.sync-cron:0 0 7 * * *}", zone = "${app.tmdb.time-zone:America/Lima}")
-    public void syncMoviesDaily() {
+    @Scheduled(cron = "${app.tmdb.sync-cron:0 0 23 * * SUN}", zone = "${app.tmdb.time-zone:America/Lima}")
+    public void syncMoviesWeekly() {
         try {
             MovieSyncStats stats = syncService.syncMovies();
             logger.info(

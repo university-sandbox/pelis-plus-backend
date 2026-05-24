@@ -11,6 +11,8 @@ public record TmdbProperties(
     String language,
     String region,
     Integer maxPagesPerList,
+    Integer releaseLookbackDays,
+    Integer maxReleaseLookbackDays,
     String syncCron,
     String timeZone
 ) {
@@ -18,6 +20,8 @@ public record TmdbProperties(
     private static final String DEFAULT_LANGUAGE = "es-PE";
     private static final String DEFAULT_REGION = "PE";
     private static final int DEFAULT_MAX_PAGES_PER_LIST = 3;
+    private static final int DEFAULT_RELEASE_LOOKBACK_DAYS = 7;
+    private static final int DEFAULT_MAX_RELEASE_LOOKBACK_DAYS = 21;
 
     public boolean isEnabled() {
         return enabled == null || enabled;
@@ -37,6 +41,20 @@ public record TmdbProperties(
 
     public int resolvedMaxPagesPerList() {
         return maxPagesPerList == null || maxPagesPerList < 1 ? DEFAULT_MAX_PAGES_PER_LIST : maxPagesPerList;
+    }
+
+    public int resolvedReleaseLookbackDays() {
+        int requested = releaseLookbackDays == null || releaseLookbackDays < 0
+            ? DEFAULT_RELEASE_LOOKBACK_DAYS
+            : releaseLookbackDays;
+        int max = resolvedMaxReleaseLookbackDays();
+        return Math.min(requested, max);
+    }
+
+    public int resolvedMaxReleaseLookbackDays() {
+        return maxReleaseLookbackDays == null || maxReleaseLookbackDays < 1
+            ? DEFAULT_MAX_RELEASE_LOOKBACK_DAYS
+            : maxReleaseLookbackDays;
     }
 
     public boolean hasCredentials() {

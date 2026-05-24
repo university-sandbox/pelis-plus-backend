@@ -5,11 +5,15 @@ import com.example.template.movie.Genre;
 import com.example.template.movie.GenreRepository;
 import com.example.template.movie.Movie;
 import com.example.template.movie.MovieRepository;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TmdbMovieSyncService {
 
     private static final Logger logger = LoggerFactory.getLogger(TmdbMovieSyncService.class);
-    private static final List<String> LISTS_TO_SYNC = List.of("now_playing", "upcoming");
+    private static final String LIST_TO_SYNC = "now_playing";
 
     private final TmdbClient tmdbClient;
     private final TmdbProperties properties;
@@ -51,25 +55,34 @@ public class TmdbMovieSyncService {
 
         syncGenres();
 
-        Map<Long, TmdbMovieCandidate> candidates = fetchCandidates();
-        List<Long> activeIds = new ArrayList<>();
+        Map<Long, TmdbMovieCandidate> candidates = fetchCandidates(LocalDate.now());
+        List<Long> availableMovieIds = candidates.keySet().stream().toList();
+        Set<Long> existingMovieIds = new HashSet<>(movieRepository.findAllById(availableMovieIds).stream()
+            .map(Movie::getId)
+            .toList());
         int upserted = 0;
 
         for (TmdbMovieCandidate candidate : candidates.values()) {
+            Long movieId = candidate.summary().id();
+            if (existingMovieIds.contains(movieId)) {
+                continue;
+            }
+
             try {
-                TmdbMovieDetails details = tmdbClient.getMovieDetails(candidate.summary().id());
+                TmdbMovieDetails details = tmdbClient.getMovieDetails(movieId);
                 if (details == null || details.id() == null) {
                     continue;
                 }
                 upsertMovie(candidate.summary(), details, candidate.status());
-                activeIds.add(details.id());
                 upserted++;
             } catch (RuntimeException ex) {
-                logger.warn("Failed to sync TMDB movie {}", candidate.summary().id(), ex);
+                logger.warn("Failed to sync TMDB movie {}", movieId, ex);
             }
         }
 
-        int deactivated = activeIds.isEmpty() ? 0 : movieRepository.deactivateMoviesNotIn(activeIds);
+        int activated = availableMovieIds.isEmpty() ? 0 : movieRepository.activateMoviesIn(availableMovieIds, LIST_TO_SYNC);
+        int deactivated = availableMovieIds.isEmpty() ? 0 : movieRepository.deactivateMoviesNotIn(availableMovieIds);
+        logger.info("TMDB movie sync availability updated: activated={}", activated);
         return new MovieSyncStats(candidates.size(), upserted, deactivated);
     }
 
@@ -91,25 +104,24 @@ public class TmdbMovieSyncService {
         genreRepository.saveAll(genres);
     }
 
-    private Map<Long, TmdbMovieCandidate> fetchCandidates() {
+    private Map<Long, TmdbMovieCandidate> fetchCandidates(LocalDate today) {
         Map<Long, TmdbMovieCandidate> candidates = new LinkedHashMap<>();
         int maxPages = properties.resolvedMaxPagesPerList();
+        LocalDate earliestReleaseDate = today.minusDays(properties.resolvedReleaseLookbackDays());
 
-        for (String listName : LISTS_TO_SYNC) {
-            int totalPages = 1;
-            for (int page = 1; page <= Math.min(totalPages, maxPages); page++) {
-                TmdbMoviePage response = tmdbClient.getMovieList(listName, page);
-                if (response == null || response.results() == null) {
-                    break;
-                }
+        int totalPages = 1;
+        for (int page = 1; page <= Math.min(totalPages, maxPages); page++) {
+            TmdbMoviePage response = tmdbClient.getMovieList(LIST_TO_SYNC, page);
+            if (response == null || response.results() == null) {
+                break;
+            }
 
-                totalPages = response.totalPages() == null ? 1 : response.totalPages();
-                for (TmdbMovieSummary summary : response.results()) {
-                    if (summary.id() == null) {
-                        continue;
-                    }
-                    candidates.putIfAbsent(summary.id(), new TmdbMovieCandidate(summary, listName));
+            totalPages = response.totalPages() == null ? 1 : response.totalPages();
+            for (TmdbMovieSummary summary : response.results()) {
+                if (summary.id() == null || !isWithinReleaseWindow(summary.releaseDate(), earliestReleaseDate, today)) {
+                    continue;
                 }
+                candidates.putIfAbsent(summary.id(), new TmdbMovieCandidate(summary, LIST_TO_SYNC));
             }
         }
 
@@ -174,6 +186,20 @@ public class TmdbMovieSyncService {
 
     private <T> T firstValue(T preferred, T fallback) {
         return preferred != null ? preferred : fallback;
+    }
+
+    private boolean isWithinReleaseWindow(String releaseDate, LocalDate earliestReleaseDate, LocalDate today) {
+        if (!hasText(releaseDate)) {
+            return false;
+        }
+
+        try {
+            LocalDate parsedReleaseDate = LocalDate.parse(releaseDate);
+            return !parsedReleaseDate.isBefore(earliestReleaseDate) && !parsedReleaseDate.isAfter(today);
+        } catch (DateTimeParseException ex) {
+            logger.warn("Ignoring TMDB movie with invalid release date {}", releaseDate);
+            return false;
+        }
     }
 
     private boolean hasText(String value) {

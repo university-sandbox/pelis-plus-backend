@@ -25,4 +25,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Modifying
     @Query("UPDATE Movie m SET m.active = false WHERE m.active = true AND m.id NOT IN :activeIds")
     int deactivateMoviesNotIn(@Param("activeIds") List<Long> activeIds);
+
+    @Modifying
+    @Query("UPDATE Movie m SET m.active = true, m.status = :status WHERE m.id IN :activeIds")
+    int activateMoviesIn(@Param("activeIds") List<Long> activeIds, @Param("status") String status);
 }

@@ -176,6 +176,11 @@ mvn spring-boot:run
 mvn spring-boot:run -Dspring-boot.run.arguments="--sync-tmdb-movies --server.port=0"
 ```
 
+The automatic sync runs every Sunday at 11:00 PM America/Lima by default.
+It checks TMDB `now_playing` movies released from the run date back to `TMDB_RELEASE_LOOKBACK_DAYS` days ago.
+The default lookback is 7 days, so each weekly run covers the current week; it is capped by `TMDB_MAX_RELEASE_LOOKBACK_DAYS` at 21 days.
+Full TMDB details are downloaded only for movies that are missing locally; existing movies are only activated/deactivated from current availability.
+
 With Docker Compose:
 
 ```bash
