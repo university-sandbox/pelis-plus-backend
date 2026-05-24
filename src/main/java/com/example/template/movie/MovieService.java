@@ -49,8 +49,10 @@ public class MovieService {
             moviePage = movieRepository.findByActiveTrueAndTitleContainingIgnoreCase(search.trim(), pageable);
         } else if (genreId != null) {
             moviePage = movieRepository.findByActiveTrueAndGenreId(genreId, pageable);
+        } else if (isCarteleraStatus(status)) {
+            moviePage = movieRepository.findActiveCarteleraMovies(pageable);
         } else if (status != null && !status.isBlank()) {
-            moviePage = movieRepository.findByActiveTrueAndStatus(status, pageable);
+            moviePage = movieRepository.findByActiveTrueAndStatus(normalizeStatus(status), pageable);
         } else {
             moviePage = movieRepository.findByActiveTrue(pageable);
         }
@@ -65,6 +67,25 @@ public class MovieService {
             moviePage.getTotalPages(),
             (int) moviePage.getTotalElements()
         );
+    }
+
+    private boolean isCarteleraStatus(String status) {
+        return status != null && ("cartelera".equalsIgnoreCase(status) || "funciones".equalsIgnoreCase(status));
+    }
+
+    private String normalizeStatus(String status) {
+        if ("estrenos".equalsIgnoreCase(status) || "estreno".equalsIgnoreCase(status)) {
+            return "now_playing";
+        }
+        if ("proximos_estrenos".equalsIgnoreCase(status) || "proximos-estrenos".equalsIgnoreCase(status)
+            || "próximos estrenos".equalsIgnoreCase(status) || "proximos estrenos".equalsIgnoreCase(status)) {
+            return "upcoming";
+        }
+        if ("populares".equalsIgnoreCase(status) || "populares_esta_semana".equalsIgnoreCase(status)
+            || "populares-esta-semana".equalsIgnoreCase(status) || "populares esta semana".equalsIgnoreCase(status)) {
+            return "popular";
+        }
+        return status;
     }
 
     public Page<MovieDto> getAdminMovies(int page) {

@@ -31,10 +31,12 @@ public class TmdbMovieSyncCommand implements ApplicationRunner {
 
         MovieSyncStats stats = syncService.syncMovies();
         logger.info(
-            "Manual TMDB movie sync finished: fetched={}, upserted={}, deactivated={}",
+            "Manual TMDB movie sync finished: fetched={}, upserted={}, deactivated={}, screeningsCreated={}, screeningsCancelled={}",
             stats.fetched(),
             stats.upserted(),
-            stats.deactivated()
+            stats.deactivated(),
+            stats.screeningsCreated(),
+            stats.screeningsCancelled()
         );
 
         SpringApplication.exit(applicationContext, () -> 0);

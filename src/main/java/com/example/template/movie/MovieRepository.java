@@ -16,6 +16,9 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 
     Page<Movie> findByActiveTrueAndTitleContainingIgnoreCase(String title, Pageable pageable);
 
+    @Query("SELECT DISTINCT m FROM Movie m JOIN Screening s ON s.movie = m WHERE m.active = true AND s.status = 'active'")
+    Page<Movie> findActiveCarteleraMovies(Pageable pageable);
+
     @Query("SELECT DISTINCT m FROM Movie m JOIN m.genres g WHERE m.active = true AND g.id = :genreId")
     Page<Movie> findByActiveTrueAndGenreId(@Param("genreId") Long genreId, Pageable pageable);
 
@@ -29,4 +32,18 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Modifying
     @Query("UPDATE Movie m SET m.active = true, m.status = :status WHERE m.id IN :activeIds")
     int activateMoviesIn(@Param("activeIds") List<Long> activeIds, @Param("status") String status);
+
+    @Modifying
+    @Query("""
+        UPDATE Movie m
+        SET m.active = false
+        WHERE m.active = true
+          AND m.id NOT IN :activeIds
+          AND NOT EXISTS (
+              SELECT 1 FROM Screening s
+              WHERE s.movie = m
+                AND s.status = 'active'
+          )
+        """)
+    int deactivateMoviesNotInWithoutActiveScreenings(@Param("activeIds") List<Long> activeIds);
 }

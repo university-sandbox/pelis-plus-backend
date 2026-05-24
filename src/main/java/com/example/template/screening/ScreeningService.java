@@ -3,7 +3,6 @@ package com.example.template.screening;
 import com.example.template.movie.Movie;
 import com.example.template.movie.MovieRepository;
 import com.example.template.seat.SeatRepository;
-import com.example.template.seat.SeatReservationRepository;
 import com.example.template.seat.SeatService;
 import com.example.template.venue.Room;
 import com.example.template.venue.RoomDto;
@@ -30,6 +29,7 @@ public class ScreeningService {
     private final MovieRepository movieRepository;
     private final RoomRepository roomRepository;
     private final SeatRepository seatRepository;
+    private final ScreeningSeatGenerator seatGenerator;
     private final SeatService seatService;
 
     public ScreeningService(
@@ -37,12 +37,14 @@ public class ScreeningService {
         MovieRepository movieRepository,
         RoomRepository roomRepository,
         SeatRepository seatRepository,
+        ScreeningSeatGenerator seatGenerator,
         SeatService seatService
     ) {
         this.screeningRepository = screeningRepository;
         this.movieRepository = movieRepository;
         this.roomRepository = roomRepository;
         this.seatRepository = seatRepository;
+        this.seatGenerator = seatGenerator;
         this.seatService = seatService;
     }
 
@@ -94,7 +96,7 @@ public class ScreeningService {
         Screening saved = screeningRepository.save(screening);
 
         // Generate seats for this screening
-        generateSeats(saved, room);
+        seatGenerator.generateSeats(saved, room);
 
         return toDto(saved);
     }
@@ -147,29 +149,6 @@ public class ScreeningService {
         ).map(this::toDto);
     }
 
-    private void generateSeats(Screening screening, Room room) {
-        int numRows = room.getRows() != null ? room.getRows() : 8;
-        int numCols = room.getCols() != null ? room.getCols() : 10;
-
-        for (int r = 0; r < numRows; r++) {
-            String rowLabel = rowLabel(r);
-            for (int c = 1; c <= numCols; c++) {
-                com.example.template.seat.Seat seat = new com.example.template.seat.Seat();
-                seat.setScreening(screening);
-                seat.setRowLabel(rowLabel);
-                seat.setColNum(c);
-                seat.setStatus("free");
-                // Preferential rows
-                if (numRows == 10) {
-                    seat.setType((rowLabel.equals("E") || rowLabel.equals("F")) ? "preferential" : "standard");
-                } else {
-                    seat.setType((rowLabel.equals("D") || rowLabel.equals("E")) ? "preferential" : "standard");
-                }
-                seatRepository.save(seat);
-            }
-        }
-    }
-
     private String resolveFormat(CreateScreeningRequest request, Room room) {
         if (request.format() != null && !request.format().isBlank()) {
             return request.format();
@@ -178,13 +157,6 @@ public class ScreeningService {
             return room.getRoomType().getCode();
         }
         return "standard";
-    }
-
-    private String rowLabel(int index) {
-        if (index < 26) {
-            return String.valueOf((char) ('A' + index));
-        }
-        return "R" + (index + 1);
     }
 
     ScreeningDto toDto(Screening screening) {

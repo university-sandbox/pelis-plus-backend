@@ -14,6 +14,19 @@ public interface ScreeningRepository extends JpaRepository<Screening, UUID> {
 
     List<Screening> findByMovieId(Long movieId);
 
+    boolean existsByMovieIdAndStatusAndDateGreaterThanEqual(Long movieId, String status, java.time.LocalDate date);
+
+    @Query("""
+        SELECT s FROM Screening s
+        WHERE s.status = 'active'
+          AND s.date >= :date
+          AND s.movie.id NOT IN :movieIds
+        """)
+    List<Screening> findActiveFutureScreeningsForMoviesNotIn(
+        @Param("movieIds") List<Long> movieIds,
+        @Param("date") java.time.LocalDate date
+    );
+
     @Query("SELECT s FROM Screening s WHERE s.movie.id = :movieId AND (:venueId IS NULL OR s.room.venue.id = :venueId) AND (:date IS NULL OR s.date = :date) AND (:format IS NULL OR s.format = :format) AND s.status = 'active'")
     Page<Screening> findFiltered(
         @Param("movieId") Long movieId,

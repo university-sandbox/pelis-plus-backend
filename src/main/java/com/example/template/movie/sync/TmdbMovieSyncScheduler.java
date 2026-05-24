@@ -21,10 +21,12 @@ public class TmdbMovieSyncScheduler {
         try {
             MovieSyncStats stats = syncService.syncMovies();
             logger.info(
-                "TMDB movie sync finished: fetched={}, upserted={}, deactivated={}",
+                "TMDB movie sync finished: fetched={}, upserted={}, deactivated={}, screeningsCreated={}, screeningsCancelled={}",
                 stats.fetched(),
                 stats.upserted(),
-                stats.deactivated()
+                stats.deactivated(),
+                stats.screeningsCreated(),
+                stats.screeningsCancelled()
             );
         } catch (RuntimeException ex) {
             logger.error("TMDB movie sync failed", ex);
