@@ -4,6 +4,8 @@ import com.example.template.domain.AppUser;
 import com.example.template.domain.AppUserRepository;
 import com.example.template.membership.ActiveMembership;
 import com.example.template.membership.ActiveMembershipRepository;
+import com.example.template.payment.StripeCheckoutSession;
+import com.example.template.payment.StripePaymentService;
 import com.example.template.screening.Screening;
 import com.example.template.screening.ScreeningRepository;
 import com.example.template.seat.Seat;
@@ -40,6 +42,7 @@ public class OrderService {
     private final SeatRepository seatRepository;
     private final SnackRepository snackRepository;
     private final ActiveMembershipRepository activeMembershipRepository;
+    private final StripePaymentService stripePaymentService;
 
     public OrderService(
         OrderRepository orderRepository,
@@ -50,7 +53,8 @@ public class OrderService {
         ScreeningRepository screeningRepository,
         SeatRepository seatRepository,
         SnackRepository snackRepository,
-        ActiveMembershipRepository activeMembershipRepository
+        ActiveMembershipRepository activeMembershipRepository,
+        StripePaymentService stripePaymentService
     ) {
         this.orderRepository = orderRepository;
         this.orderTicketRepository = orderTicketRepository;
@@ -61,6 +65,7 @@ public class OrderService {
         this.seatRepository = seatRepository;
         this.snackRepository = snackRepository;
         this.activeMembershipRepository = activeMembershipRepository;
+        this.stripePaymentService = stripePaymentService;
     }
 
     @Transactional
@@ -122,7 +127,7 @@ public class OrderService {
                 os.setSnackName(snack.getName());
                 os.setQuantity(sp.quantity() != null ? sp.quantity() : 1);
                 os.setUnitPrice(snack.getPrice());
-                os.setSelectedOptions(sp.selectedOptions() != null ? sp.selectedOptions().toString() : null);
+                os.setSelectedOptions(sp.selectedOptions());
                 orderSnackRepository.save(os);
 
                 subtotal = subtotal.add(snack.getPrice().multiply(BigDecimal.valueOf(os.getQuantity())));
@@ -137,17 +142,22 @@ public class OrderService {
         BigDecimal discount = membershipBenefit.totalDiscount();
         BigDecimal total = subtotal.subtract(discount).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
         boolean requiresPayment = total.compareTo(BigDecimal.ZERO) > 0;
-        String formToken = requiresPayment
-            ? "MOCK_IZIPAY_" + savedOrder.getId().toString().substring(0, 8).toUpperCase()
-            : null;
 
         savedOrder.setSubtotal(subtotal);
         savedOrder.setDiscount(discount);
         savedOrder.setTotal(total);
         savedOrder.setMembershipTicketsApplied(membershipBenefit.freeTicketsApplied());
         savedOrder.setRequiresPayment(requiresPayment);
-        savedOrder.setIzipayFormToken(formToken);
         savedOrder = orderRepository.save(savedOrder);
+
+        StripeCheckoutSession checkoutSession = null;
+        if (requiresPayment) {
+            checkoutSession = stripePaymentService.createCheckoutSession(savedOrder);
+            savedOrder.setStripeCheckoutSessionId(checkoutSession.id());
+            savedOrder.setStripeCheckoutUrl(checkoutSession.url());
+            savedOrder.setPaymentStatus("processing");
+            savedOrder = orderRepository.save(savedOrder);
+        }
 
         OrderDto orderDto = requiresPayment
             ? toDto(savedOrder)
@@ -155,7 +165,9 @@ public class OrderService {
 
         return new CreateOrderResponse(
             savedOrder.getId().toString(),
-            formToken,
+            null,
+            checkoutSession != null ? checkoutSession.id() : null,
+            checkoutSession != null ? checkoutSession.url() : null,
             orderDto,
             requiresPayment,
             membershipBenefit.freeTicketsApplied(),
@@ -170,6 +182,27 @@ public class OrderService {
 
         if ("confirmed".equals(order.getStatus())) {
             return toDto(order);
+        }
+
+        if (Boolean.TRUE.equals(order.getRequiresPayment()) && order.getStripeCheckoutSessionId() != null) {
+            throw new IllegalArgumentException("Use Stripe checkout confirmation for this order");
+        }
+
+        return confirmOrderInternal(order);
+    }
+
+    @Transactional
+    public OrderDto confirmStripeCheckout(String sessionId, UUID userId) {
+        Order order = orderRepository.findByStripeCheckoutSessionIdAndUserId(sessionId, userId)
+            .orElseThrow(() -> new EntityNotFoundException("Order not found for Stripe session: " + sessionId));
+
+        if ("confirmed".equals(order.getStatus())) {
+            return toDto(order);
+        }
+
+        StripeCheckoutSession checkoutSession = stripePaymentService.retrieveCheckoutSession(sessionId);
+        if (!stripePaymentService.isPaidOrNoPaymentRequired(checkoutSession)) {
+            throw new IllegalArgumentException("Stripe checkout session is not paid");
         }
 
         return confirmOrderInternal(order);
@@ -318,7 +351,7 @@ public class OrderService {
             os.getSnackName(),
             os.getQuantity(),
             os.getUnitPrice() != null ? os.getUnitPrice().doubleValue() : 0.0,
-            null
+            os.getSelectedOptions()
         )).toList();
 
         return new OrderDto(

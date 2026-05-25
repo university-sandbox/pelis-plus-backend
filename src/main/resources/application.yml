@@ -24,6 +24,15 @@ server:
   port: ${SERVER_PORT:8080}
   forward-headers-strategy: framework
 
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    com.example.template: ${LOGGING_LEVEL_APP:DEBUG}
+    org.springframework.web: ${LOGGING_LEVEL_SPRING_WEB:DEBUG}
+    org.springframework.security: ${LOGGING_LEVEL_SPRING_SECURITY:INFO}
+    org.hibernate.SQL: ${LOGGING_LEVEL_HIBERNATE_SQL:DEBUG}
+    org.hibernate.orm.jdbc.bind: ${LOGGING_LEVEL_HIBERNATE_BIND:TRACE}
+
 app:
   tmdb:
     enabled: ${TMDB_SYNC_ENABLED:true}
@@ -37,6 +46,14 @@ app:
     max-release-lookback-days: ${TMDB_MAX_RELEASE_LOOKBACK_DAYS:21}
     sync-cron: ${TMDB_SYNC_CRON:0 0 23 * * SUN}
     time-zone: ${TMDB_TIME_ZONE:America/Lima}
+  payments:
+    stripe:
+      secret-key: ${STRIPE_SECRET_KEY:}
+      currency: ${STRIPE_CURRENCY:pen}
+      success-url: ${STRIPE_SUCCESS_URL:http://localhost:4200/checkout/stripe/success?order_id={ORDER_ID}&session_id={CHECKOUT_SESSION_ID}}
+      cancel-url: ${STRIPE_CANCEL_URL:http://localhost:4200/checkout?payment=cancelled}
+      membership-success-url: ${STRIPE_MEMBERSHIP_SUCCESS_URL:http://localhost:4200/memberships/stripe/success?session_id={CHECKOUT_SESSION_ID}}
+      membership-cancel-url: ${STRIPE_MEMBERSHIP_CANCEL_URL:http://localhost:4200/memberships?payment=cancelled}
   security:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}

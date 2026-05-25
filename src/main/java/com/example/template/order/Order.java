@@ -44,6 +44,11 @@ public class Order {
 
     private String izipayFormToken;
 
+    private String stripeCheckoutSessionId;
+
+    @Column(length = 2000)
+    private String stripeCheckoutUrl;
+
     @Column(nullable = false)
     private Integer membershipTicketsApplied = 0;
 
@@ -81,6 +86,12 @@ public class Order {
 
     public String getIzipayFormToken() { return izipayFormToken; }
     public void setIzipayFormToken(String izipayFormToken) { this.izipayFormToken = izipayFormToken; }
+
+    public String getStripeCheckoutSessionId() { return stripeCheckoutSessionId; }
+    public void setStripeCheckoutSessionId(String stripeCheckoutSessionId) { this.stripeCheckoutSessionId = stripeCheckoutSessionId; }
+
+    public String getStripeCheckoutUrl() { return stripeCheckoutUrl; }
+    public void setStripeCheckoutUrl(String stripeCheckoutUrl) { this.stripeCheckoutUrl = stripeCheckoutUrl; }
 
     public Integer getMembershipTicketsApplied() { return membershipTicketsApplied; }
     public void setMembershipTicketsApplied(Integer membershipTicketsApplied) { this.membershipTicketsApplied = membershipTicketsApplied; }

@@ -2,7 +2,6 @@ package com.example.template.security;
 
 import com.example.template.config.AppSecurityProperties;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties(AppSecurityProperties.class)
 @EnableMethodSecurity
 public class SecurityConfig {
 

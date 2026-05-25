@@ -11,7 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "order_snacks")
@@ -38,8 +41,9 @@ public class OrderSnack {
     @Column(nullable = false)
     private BigDecimal unitPrice;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private String selectedOptions;
+    private Map<String, String> selectedOptions;
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -59,6 +63,6 @@ public class OrderSnack {
     public BigDecimal getUnitPrice() { return unitPrice; }
     public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
 
-    public String getSelectedOptions() { return selectedOptions; }
-    public void setSelectedOptions(String selectedOptions) { this.selectedOptions = selectedOptions; }
+    public Map<String, String> getSelectedOptions() { return selectedOptions; }
+    public void setSelectedOptions(Map<String, String> selectedOptions) { this.selectedOptions = selectedOptions; }
 }
