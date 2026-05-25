@@ -127,7 +127,7 @@ public class OrderService {
                 os.setSnackName(snack.getName());
                 os.setQuantity(sp.quantity() != null ? sp.quantity() : 1);
                 os.setUnitPrice(snack.getPrice());
-                os.setSelectedOptions(sp.selectedOptions() != null ? sp.selectedOptions().toString() : null);
+                os.setSelectedOptions(sp.selectedOptions());
                 orderSnackRepository.save(os);
 
                 subtotal = subtotal.add(snack.getPrice().multiply(BigDecimal.valueOf(os.getQuantity())));
@@ -351,7 +351,7 @@ public class OrderService {
             os.getSnackName(),
             os.getQuantity(),
             os.getUnitPrice() != null ? os.getUnitPrice().doubleValue() : 0.0,
-            null
+            os.getSelectedOptions()
         )).toList();
 
         return new OrderDto(
