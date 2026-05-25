@@ -24,6 +24,15 @@ server:
   port: ${SERVER_PORT:8080}
   forward-headers-strategy: framework
 
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    com.example.template: ${LOGGING_LEVEL_APP:DEBUG}
+    org.springframework.web: ${LOGGING_LEVEL_SPRING_WEB:DEBUG}
+    org.springframework.security: ${LOGGING_LEVEL_SPRING_SECURITY:INFO}
+    org.hibernate.SQL: ${LOGGING_LEVEL_HIBERNATE_SQL:DEBUG}
+    org.hibernate.orm.jdbc.bind: ${LOGGING_LEVEL_HIBERNATE_BIND:TRACE}
+
 app:
   tmdb:
     enabled: ${TMDB_SYNC_ENABLED:true}
