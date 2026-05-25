@@ -1,0 +1,591 @@
+@startuml ClassDiagram
+title PelisPlus — Class Diagram (Domain Entities)
+
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #2C3E50
+skinparam classHeaderBackgroundColor #D6E4F0
+skinparam classHeaderFontColor #1A1A1A
+skinparam classFontColor #1A1A1A
+skinparam classFontSize 12
+skinparam classHeaderFontSize 13
+skinparam arrowColor #2C3E50
+skinparam arrowThickness 1.5
+skinparam linetype polyline
+skinparam nodesep 70
+skinparam ranksep 90
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam titleFontColor #1A1A1A
+skinparam titleFontSize 16
+skinparam packageBackgroundColor #F0F4F8
+skinparam packageBorderColor #2C3E50
+skinparam packageFontColor #1A1A1A
+
+hide circle
+
+' ══════════════════════════════════
+'  DOMAIN
+' ══════════════════════════════════
+package "domain" {
+  enum Role {
+    USER
+    ADMIN
+  }
+
+  class AppUser {
+    - id : UUID
+    - name : String
+    - email : String
+    - password : String
+    - role : Role
+    - createdAt : Instant
+    --
+    + getId() : UUID
+    + getName() : String
+    + setName(String) : void
+    + getEmail() : String
+    + setEmail(String) : void
+    + getPassword() : String
+    + setPassword(String) : void
+    + getRole() : Role
+    + setRole(Role) : void
+    + getCreatedAt() : Instant
+  }
+}
+
+' ══════════════════════════════════
+'  MOVIE
+' ══════════════════════════════════
+package "movie" {
+  class Movie {
+    - id : Long
+    - title : String
+    - overview : String
+    - posterPath : String
+    - backdropPath : String
+    - releaseDate : String
+    - voteAverage : Double
+    - voteCount : Integer
+    - runtime : Integer
+    - originalLanguage : String
+    - popularity : Double
+    - adult : Boolean
+    - video : Boolean
+    - trailerYoutubeKey : String
+    - status : String
+    - active : Boolean
+    - genres : List<Genre>
+    --
+    + getId() : Long
+    + setId(Long) : void
+    + getTitle() : String
+    + setTitle(String) : void
+    + getOverview() : String
+    + setOverview(String) : void
+    + getPosterPath() : String
+    + setPosterPath(String) : void
+    + getBackdropPath() : String
+    + setBackdropPath(String) : void
+    + getReleaseDate() : String
+    + setReleaseDate(String) : void
+    + getVoteAverage() : Double
+    + setVoteAverage(Double) : void
+    + getVoteCount() : Integer
+    + setVoteCount(Integer) : void
+    + getRuntime() : Integer
+    + setRuntime(Integer) : void
+    + getOriginalLanguage() : String
+    + setOriginalLanguage(String) : void
+    + getPopularity() : Double
+    + setPopularity(Double) : void
+    + getAdult() : Boolean
+    + setAdult(Boolean) : void
+    + getVideo() : Boolean
+    + setVideo(Boolean) : void
+    + getTrailerYoutubeKey() : String
+    + setTrailerYoutubeKey(String) : void
+    + getStatus() : String
+    + setStatus(String) : void
+    + getActive() : Boolean
+    + setActive(Boolean) : void
+    + getGenres() : List<Genre>
+    + setGenres(List<Genre>) : void
+  }
+
+  class Genre {
+    - id : Long
+    - name : String
+    --
+    + getId() : Long
+    + setId(Long) : void
+    + getName() : String
+    + setName(String) : void
+  }
+}
+
+' ══════════════════════════════════
+'  VENUE
+' ══════════════════════════════════
+package "venue" {
+  class Venue {
+    - id : UUID
+    - name : String
+    - address : String
+    - city : String
+    - active : Boolean
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getName() : String
+    + setName(String) : void
+    + getAddress() : String
+    + setAddress(String) : void
+    + getCity() : String
+    + setCity(String) : void
+    + getActive() : Boolean
+    + setActive(Boolean) : void
+  }
+
+  class RoomType {
+    - id : UUID
+    - code : String
+    - name : String
+    - description : String
+    - active : Boolean
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getCode() : String
+    + setCode(String) : void
+    + getName() : String
+    + setName(String) : void
+    + getDescription() : String
+    + setDescription(String) : void
+    + getActive() : Boolean
+    + setActive(Boolean) : void
+  }
+
+  class RoomLayout {
+    - id : UUID
+    - name : String
+    - rows : Integer
+    - cols : Integer
+    - capacity : Integer
+    - seatMap : String
+    - active : Boolean
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getName() : String
+    + setName(String) : void
+    + getRows() : Integer
+    + setRows(Integer) : void
+    + getCols() : Integer
+    + setCols(Integer) : void
+    + getCapacity() : Integer
+    + setCapacity(Integer) : void
+    + getSeatMap() : String
+    + setSeatMap(String) : void
+    + getActive() : Boolean
+    + setActive(Boolean) : void
+  }
+
+  class Room {
+    - id : UUID
+    - name : String
+    - capacity : Integer
+    - rows : Integer
+    - cols : Integer
+    - active : Boolean
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getVenue() : Venue
+    + setVenue(Venue) : void
+    + getRoomType() : RoomType
+    + setRoomType(RoomType) : void
+    + getRoomLayout() : RoomLayout
+    + setRoomLayout(RoomLayout) : void
+    + getName() : String
+    + setName(String) : void
+    + getCapacity() : Integer
+    + setCapacity(Integer) : void
+    + getRows() : Integer
+    + setRows(Integer) : void
+    + getCols() : Integer
+    + setCols(Integer) : void
+    + getActive() : Boolean
+    + setActive(Boolean) : void
+  }
+}
+
+' ══════════════════════════════════
+'  SCREENING
+' ══════════════════════════════════
+package "screening" {
+  class Screening {
+    - id : UUID
+    - date : LocalDate
+    - time : LocalTime
+    - format : String
+    - price : BigDecimal
+    - status : String
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getMovie() : Movie
+    + setMovie(Movie) : void
+    + getRoom() : Room
+    + setRoom(Room) : void
+    + getDate() : LocalDate
+    + setDate(LocalDate) : void
+    + getTime() : LocalTime
+    + setTime(LocalTime) : void
+    + getFormat() : String
+    + setFormat(String) : void
+    + getPrice() : BigDecimal
+    + setPrice(BigDecimal) : void
+    + getStatus() : String
+    + setStatus(String) : void
+  }
+}
+
+' ══════════════════════════════════
+'  SEAT
+' ══════════════════════════════════
+package "seat" {
+  class Seat {
+    - id : UUID
+    - rowLabel : String
+    - colNum : Integer
+    - status : String
+    - type : String
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getScreening() : Screening
+    + setScreening(Screening) : void
+    + getRowLabel() : String
+    + setRowLabel(String) : void
+    + getColNum() : Integer
+    + setColNum(Integer) : void
+    + getStatus() : String
+    + setStatus(String) : void
+    + getType() : String
+    + setType(String) : void
+  }
+
+  class SeatReservation {
+    - id : UUID
+    - expiresAt : Instant
+    - createdAt : Instant
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getSeat() : Seat
+    + setSeat(Seat) : void
+    + getUser() : AppUser
+    + setUser(AppUser) : void
+    + getExpiresAt() : Instant
+    + setExpiresAt(Instant) : void
+    + getCreatedAt() : Instant
+    + setCreatedAt(Instant) : void
+  }
+}
+
+' ══════════════════════════════════
+'  SNACK
+' ══════════════════════════════════
+package "snack" {
+  class Snack {
+    - id : UUID
+    - name : String
+    - description : String
+    - category : String
+    - price : BigDecimal
+    - image : String
+    - status : String
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getName() : String
+    + setName(String) : void
+    + getDescription() : String
+    + setDescription(String) : void
+    + getCategory() : String
+    + setCategory(String) : void
+    + getPrice() : BigDecimal
+    + setPrice(BigDecimal) : void
+    + getImage() : String
+    + setImage(String) : void
+    + getStatus() : String
+    + setStatus(String) : void
+  }
+
+  class SnackOption {
+    - id : UUID
+    - label : String
+    - displayOrder : Integer
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getSnack() : Snack
+    + setSnack(Snack) : void
+    + getLabel() : String
+    + setLabel(String) : void
+    + getDisplayOrder() : Integer
+    + setDisplayOrder(Integer) : void
+  }
+
+  class SnackChoice {
+    - id : UUID
+    - choice : String
+    - displayOrder : Integer
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getOption() : SnackOption
+    + setOption(SnackOption) : void
+    + getChoice() : String
+    + setChoice(String) : void
+    + getDisplayOrder() : Integer
+    + setDisplayOrder(Integer) : void
+  }
+}
+
+' ══════════════════════════════════
+'  MEMBERSHIP
+' ══════════════════════════════════
+package "membership" {
+  class MembershipPlan {
+    - id : UUID
+    - name : String
+    - price : BigDecimal
+    - validity : String
+    - discountPercentage : Integer
+    - ticketsPerMonth : Integer
+    - recommended : Boolean
+    - color : String
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getName() : String
+    + setName(String) : void
+    + getPrice() : BigDecimal
+    + setPrice(BigDecimal) : void
+    + getValidity() : String
+    + setValidity(String) : void
+    + getDiscountPercentage() : Integer
+    + setDiscountPercentage(Integer) : void
+    + getTicketsPerMonth() : Integer
+    + setTicketsPerMonth(Integer) : void
+    + getRecommended() : Boolean
+    + setRecommended(Boolean) : void
+    + getColor() : String
+    + setColor(String) : void
+  }
+
+  class MembershipPlanBenefit {
+    - id : UUID
+    - label : String
+    - description : String
+    - displayOrder : Integer
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getPlan() : MembershipPlan
+    + setPlan(MembershipPlan) : void
+    + getLabel() : String
+    + setLabel(String) : void
+    + getDescription() : String
+    + setDescription(String) : void
+    + getDisplayOrder() : Integer
+    + setDisplayOrder(Integer) : void
+  }
+
+  class ActiveMembership {
+    - id : UUID
+    - expiresAt : LocalDate
+    - ticketsUsed : Integer
+    - discountUsed : BigDecimal
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getUser() : AppUser
+    + setUser(AppUser) : void
+    + getPlan() : MembershipPlan
+    + setPlan(MembershipPlan) : void
+    + getExpiresAt() : LocalDate
+    + setExpiresAt(LocalDate) : void
+    + getTicketsUsed() : Integer
+    + setTicketsUsed(Integer) : void
+    + getDiscountUsed() : BigDecimal
+    + setDiscountUsed(BigDecimal) : void
+  }
+}
+
+' ══════════════════════════════════
+'  ORDER
+' ══════════════════════════════════
+package "order" {
+  class Order {
+    - id : UUID
+    - subtotal : BigDecimal
+    - discount : BigDecimal
+    - total : BigDecimal
+    - status : String
+    - paymentStatus : String
+    - membershipTicketsApplied : Integer
+    - requiresPayment : Boolean
+    - izipayFormToken : String
+    - stripeCheckoutSessionId : String
+    - stripeCheckoutUrl : String
+    - createdAt : Instant
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getUser() : AppUser
+    + setUser(AppUser) : void
+    + getSubtotal() : BigDecimal
+    + setSubtotal(BigDecimal) : void
+    + getDiscount() : BigDecimal
+    + setDiscount(BigDecimal) : void
+    + getTotal() : BigDecimal
+    + setTotal(BigDecimal) : void
+    + getStatus() : String
+    + setStatus(String) : void
+    + getPaymentStatus() : String
+    + setPaymentStatus(String) : void
+    + getMembershipTicketsApplied() : Integer
+    + setMembershipTicketsApplied(Integer) : void
+    + getRequiresPayment() : Boolean
+    + setRequiresPayment(Boolean) : void
+    + getIzipayFormToken() : String
+    + setIzipayFormToken(String) : void
+    + getStripeCheckoutSessionId() : String
+    + setStripeCheckoutSessionId(String) : void
+    + getStripeCheckoutUrl() : String
+    + setStripeCheckoutUrl(String) : void
+    + getCreatedAt() : Instant
+    + setCreatedAt(Instant) : void
+  }
+
+  class OrderTicket {
+    - id : UUID
+    - movieTitle : String
+    - venueName : String
+    - roomName : String
+    - screeningDate : LocalDate
+    - screeningTime : LocalTime
+    - format : String
+    - price : BigDecimal
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getOrder() : Order
+    + setOrder(Order) : void
+    + getScreening() : Screening
+    + setScreening(Screening) : void
+    + getSeat() : Seat
+    + setSeat(Seat) : void
+    + getMovieTitle() : String
+    + setMovieTitle(String) : void
+    + getVenueName() : String
+    + setVenueName(String) : void
+    + getRoomName() : String
+    + setRoomName(String) : void
+    + getScreeningDate() : LocalDate
+    + setScreeningDate(LocalDate) : void
+    + getScreeningTime() : LocalTime
+    + setScreeningTime(LocalTime) : void
+    + getFormat() : String
+    + setFormat(String) : void
+    + getPrice() : BigDecimal
+    + setPrice(BigDecimal) : void
+  }
+
+  class OrderSnack {
+    - id : UUID
+    - snackName : String
+    - quantity : Integer
+    - unitPrice : BigDecimal
+    - selectedOptions : Map<String,String>
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getOrder() : Order
+    + setOrder(Order) : void
+    + getSnack() : Snack
+    + setSnack(Snack) : void
+    + getSnackName() : String
+    + setSnackName(String) : void
+    + getQuantity() : Integer
+    + setQuantity(Integer) : void
+    + getUnitPrice() : BigDecimal
+    + setUnitPrice(BigDecimal) : void
+    + getSelectedOptions() : Map<String,String>
+    + setSelectedOptions(Map<String,String>) : void
+  }
+}
+
+' ══════════════════════════════════
+'  TICKET
+' ══════════════════════════════════
+package "ticket" {
+  class Ticket {
+    - id : UUID
+    - bookingCode : String
+    - qrData : String
+    - issuedAt : Instant
+    --
+    + getId() : UUID
+    + setId(UUID) : void
+    + getOrderTicket() : OrderTicket
+    + setOrderTicket(OrderTicket) : void
+    + getOrder() : Order
+    + setOrder(Order) : void
+    + getBookingCode() : String
+    + setBookingCode(String) : void
+    + getQrData() : String
+    + setQrData(String) : void
+    + getIssuedAt() : Instant
+    + setIssuedAt(Instant) : void
+  }
+}
+
+' ══════════════════════════════════
+'  RELATIONSHIPS
+' ══════════════════════════════════
+
+AppUser --> Role : role
+
+Movie "*" --> "*" Genre           : genres
+
+Room "*" --> "1" Venue            : venue
+Room "*" --> "1" RoomType         : roomType
+Room "*" --> "1" RoomLayout       : roomLayout
+
+Screening "*" --> "1" Movie       : movie
+Screening "*" --> "1" Room        : room
+
+Seat "*" --> "1" Screening        : screening
+SeatReservation "*" --> "1" Seat      : seat
+SeatReservation "*" --> "1" AppUser   : user
+
+SnackOption "*" --> "1" Snack         : snack
+SnackChoice "*" --> "1" SnackOption   : option
+
+MembershipPlanBenefit "*" --> "1" MembershipPlan : plan
+ActiveMembership "0..1" --> "1" AppUser           : user
+ActiveMembership "*" --> "1" MembershipPlan       : plan
+
+Order "*" --> "1" AppUser             : user
+OrderTicket "*" --> "1" Order         : order
+OrderTicket "*" --> "1" Screening     : screening
+OrderTicket "*" --> "1" Seat          : seat
+OrderSnack "*" --> "1" Order          : order
+OrderSnack "*" --> "1" Snack          : snack
+Ticket "1" --> "1" OrderTicket        : orderTicket
+Ticket "*" --> "1" Order              : order
+
+@enduml
