@@ -37,6 +37,12 @@ app:
     max-release-lookback-days: ${TMDB_MAX_RELEASE_LOOKBACK_DAYS:21}
     sync-cron: ${TMDB_SYNC_CRON:0 0 23 * * SUN}
     time-zone: ${TMDB_TIME_ZONE:America/Lima}
+  payments:
+    stripe:
+      secret-key: ${STRIPE_SECRET_KEY:}
+      currency: ${STRIPE_CURRENCY:pen}
+      success-url: ${STRIPE_SUCCESS_URL:http://localhost:4200/checkout/stripe/success?order_id={ORDER_ID}&session_id={CHECKOUT_SESSION_ID}}
+      cancel-url: ${STRIPE_CANCEL_URL:http://localhost:4200/checkout?payment=cancelled}
   security:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}

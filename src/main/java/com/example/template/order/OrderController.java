@@ -1,6 +1,7 @@
 package com.example.template.order;
 
 import com.example.template.security.UserPrincipal;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,14 @@ public class OrderController {
         @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.ok(orderService.confirmOrder(id, principal.getUser().getId(), paymentResult));
+    }
+
+    @PostMapping("/stripe/confirm")
+    public ResponseEntity<OrderDto> confirmStripeCheckout(
+        @Valid @RequestBody ConfirmStripeCheckoutPayload payload,
+        @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(orderService.confirmStripeCheckout(payload.sessionId(), principal.getUser().getId()));
     }
 
     @GetMapping("/me")
