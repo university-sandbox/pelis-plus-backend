@@ -1,0 +1,317 @@
+@startuml pelis-plus-logical-model
+title PelisPlus — Logical Data Model
+
+skinparam linetype ortho
+skinparam ranksep 60
+skinparam nodesep 40
+skinparam entity {
+    BackgroundColor #F8F9FA
+    BorderColor #495057
+    FontSize 12
+}
+skinparam package {
+    BackgroundColor #EEF2FF
+    BorderColor #6366F1
+}
+
+' ─────────────────────────────────────────────
+'  USERS & MEMBERSHIP
+' ─────────────────────────────────────────────
+package "Users & Membership" {
+
+    entity app_users {
+        * id : UUID <<PK>>
+        --
+        * email : VARCHAR(190) <<UNIQUE>>
+        * password : VARCHAR(255)
+        * name : VARCHAR(255)
+        * role : VARCHAR(20)
+        * created_at : TIMESTAMPTZ
+    }
+
+    entity membership_plans {
+        * id : UUID <<PK>>
+        --
+        * name : VARCHAR(20)
+        * price : DECIMAL(10,2)
+        * validity : VARCHAR(50)
+        * discount_percentage : INTEGER
+        * tickets_per_month : INTEGER
+        recommended : BOOLEAN
+        color : VARCHAR(20)
+    }
+
+    entity membership_plan_benefits {
+        * id : UUID <<PK>>
+        --
+        * plan_id : UUID <<FK>>
+        * label : VARCHAR(100)
+        description : TEXT
+        * display_order : INTEGER
+    }
+
+    entity active_memberships {
+        * id : UUID <<PK>>
+        --
+        * user_id : UUID <<FK, UNIQUE>>
+        * plan_id : UUID <<FK>>
+        * expires_at : DATE
+        * tickets_used : INTEGER
+        * discount_used : DECIMAL(10,2)
+    }
+}
+
+' ─────────────────────────────────────────────
+'  CATALOG
+' ─────────────────────────────────────────────
+package "Movie Catalog" {
+
+    entity genres {
+        * id : BIGINT <<PK>>
+        --
+        * name : VARCHAR(100)
+    }
+
+    entity movies {
+        * id : BIGINT <<PK>>
+        --
+        * title : VARCHAR(500)
+        overview : TEXT
+        poster_path : VARCHAR(500)
+        backdrop_path : VARCHAR(500)
+        release_date : VARCHAR(20)
+        vote_average : DOUBLE
+        vote_count : INTEGER
+        runtime : INTEGER
+        original_language : VARCHAR(10)
+        popularity : DOUBLE
+        adult : BOOLEAN
+        video : BOOLEAN
+        status : VARCHAR(30)
+        active : BOOLEAN
+        trailer_youtube_key : VARCHAR(100)
+    }
+
+    entity movie_genres {
+        * movie_id : BIGINT <<PK, FK>>
+        * genre_id : BIGINT <<PK, FK>>
+    }
+}
+
+' ─────────────────────────────────────────────
+'  VENUE
+' ─────────────────────────────────────────────
+package "Venue" {
+
+    entity venues {
+        * id : UUID <<PK>>
+        --
+        * name : VARCHAR(255)
+        address : VARCHAR(500)
+        city : VARCHAR(100)
+        active : BOOLEAN
+    }
+
+    entity room_types {
+        * id : UUID <<PK>>
+        --
+        * code : VARCHAR(30) <<UNIQUE>>
+        * name : VARCHAR(100)
+        description : VARCHAR(500)
+        active : BOOLEAN
+    }
+
+    entity room_layouts {
+        * id : UUID <<PK>>
+        --
+        * name : VARCHAR(100)
+        * rows : INTEGER
+        * cols : INTEGER
+        * capacity : INTEGER
+        seat_map : TEXT
+        active : BOOLEAN
+    }
+
+    entity rooms {
+        * id : UUID <<PK>>
+        --
+        * venue_id : UUID <<FK>>
+        * room_type_id : UUID <<FK>>
+        * room_layout_id : UUID <<FK>>
+        * name : VARCHAR(100)
+        * capacity : INTEGER
+        * rows : INTEGER
+        * cols : INTEGER
+        active : BOOLEAN
+    }
+}
+
+' ─────────────────────────────────────────────
+'  SCHEDULING
+' ─────────────────────────────────────────────
+package "Scheduling" {
+
+    entity screenings {
+        * id : UUID <<PK>>
+        --
+        * movie_id : BIGINT <<FK>>
+        * room_id : UUID <<FK>>
+        * date : DATE
+        * time : TIME
+        * format : VARCHAR(20)
+        * price : DECIMAL(10,2)
+        * status : VARCHAR(20)
+    }
+
+    entity seats {
+        * id : UUID <<PK>>
+        --
+        * screening_id : UUID <<FK>>
+        * row_label : VARCHAR(5)
+        * col_num : INTEGER
+        * status : VARCHAR(20)
+        * type : VARCHAR(20)
+    }
+
+    entity seat_reservations {
+        * id : UUID <<PK>>
+        --
+        * seat_id : UUID <<FK>>
+        * user_id : UUID <<FK>>
+        * expires_at : TIMESTAMPTZ
+        * created_at : TIMESTAMPTZ
+    }
+}
+
+' ─────────────────────────────────────────────
+'  SNACKS
+' ─────────────────────────────────────────────
+package "Snacks" {
+
+    entity snacks {
+        * id : UUID <<PK>>
+        --
+        * name : VARCHAR(255)
+        description : TEXT
+        * category : VARCHAR(50)
+        * price : DECIMAL(10,2)
+        image : VARCHAR(500)
+        * status : VARCHAR(20)
+    }
+
+    entity snack_options {
+        * id : UUID <<PK>>
+        --
+        * snack_id : UUID <<FK>>
+        * label : VARCHAR(100)
+        * display_order : INTEGER
+    }
+
+    entity snack_choices {
+        * id : UUID <<PK>>
+        --
+        * option_id : UUID <<FK>>
+        * choice : VARCHAR(100)
+        * display_order : INTEGER
+    }
+}
+
+' ─────────────────────────────────────────────
+'  ORDERS
+' ─────────────────────────────────────────────
+package "Orders" {
+
+    entity orders {
+        * id : UUID <<PK>>
+        --
+        * user_id : UUID <<FK>>
+        * subtotal : DECIMAL(10,2)
+        * discount : DECIMAL(10,2)
+        * total : DECIMAL(10,2)
+        * status : VARCHAR(20)
+        * payment_status : VARCHAR(20)
+        * membership_tickets_applied : INTEGER
+        * requires_payment : BOOLEAN
+        izipay_form_token : VARCHAR(1000)
+        stripe_checkout_session_id : VARCHAR(255)
+        stripe_checkout_url : VARCHAR(2000)
+        * created_at : TIMESTAMPTZ
+    }
+
+    entity order_tickets {
+        * id : UUID <<PK>>
+        --
+        * order_id : UUID <<FK>>
+        * screening_id : UUID <<FK>>
+        * seat_id : UUID <<FK>>
+        * movie_title : VARCHAR(500)
+        * venue_name : VARCHAR(255)
+        * room_name : VARCHAR(100)
+        * screening_date : DATE
+        * screening_time : TIME
+        * format : VARCHAR(20)
+        * price : DECIMAL(10,2)
+    }
+
+    entity order_snacks {
+        * id : UUID <<PK>>
+        --
+        * order_id : UUID <<FK>>
+        * snack_id : UUID <<FK>>
+        * snack_name : VARCHAR(255)
+        * quantity : INTEGER
+        * unit_price : DECIMAL(10,2)
+        selected_options : JSONB
+    }
+
+    entity tickets {
+        * id : UUID <<PK>>
+        --
+        * order_ticket_id : UUID <<FK, UNIQUE>>
+        * order_id : UUID <<FK>>
+        * booking_code : VARCHAR(20) <<UNIQUE>>
+        * qr_data : VARCHAR(500)
+        * issued_at : TIMESTAMPTZ
+    }
+}
+
+' ─────────────────────────────────────────────
+'  RELATIONSHIPS
+' ─────────────────────────────────────────────
+
+' Catalog
+movies ||--o{ movie_genres : "has"
+genres ||--o{ movie_genres : "tagged in"
+
+' Venue
+venues ||--o{ rooms : "contains"
+room_types ||--o{ rooms : "classifies"
+room_layouts ||--o{ rooms : "defines layout of"
+
+' Scheduling
+movies ||--o{ screenings : "shown in"
+rooms ||--o{ screenings : "hosts"
+screenings ||--o{ seats : "has"
+seats ||--o{ seat_reservations : "reserved via"
+app_users ||--o{ seat_reservations : "holds"
+
+' Snacks
+snacks ||--o{ snack_options : "has"
+snack_options ||--o{ snack_choices : "offers"
+
+' Membership
+membership_plans ||--o{ membership_plan_benefits : "grants"
+membership_plans ||--o{ active_memberships : "subscribed as"
+app_users ||--|| active_memberships : "has one"
+
+' Orders
+app_users ||--o{ orders : "places"
+orders ||--o{ order_tickets : "contains"
+orders ||--o{ order_snacks : "includes"
+order_tickets ||--o{ tickets : "generates"
+screenings ||--o{ order_tickets : "booked via"
+seats ||--o{ order_tickets : "assigned to"
+snacks ||--o{ order_snacks : "referenced by"
+orders ||--o{ tickets : "owns"
+
+@enduml
