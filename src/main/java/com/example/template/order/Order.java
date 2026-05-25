@@ -45,6 +45,12 @@ public class Order {
     private String izipayFormToken;
 
     @Column(nullable = false)
+    private Integer membershipTicketsApplied = 0;
+
+    @Column(nullable = false)
+    private Boolean requiresPayment = true;
+
+    @Column(nullable = false)
     private Instant createdAt;
 
     @PrePersist
@@ -75,6 +81,12 @@ public class Order {
 
     public String getIzipayFormToken() { return izipayFormToken; }
     public void setIzipayFormToken(String izipayFormToken) { this.izipayFormToken = izipayFormToken; }
+
+    public Integer getMembershipTicketsApplied() { return membershipTicketsApplied; }
+    public void setMembershipTicketsApplied(Integer membershipTicketsApplied) { this.membershipTicketsApplied = membershipTicketsApplied; }
+
+    public Boolean getRequiresPayment() { return requiresPayment; }
+    public void setRequiresPayment(Boolean requiresPayment) { this.requiresPayment = requiresPayment; }
 
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }

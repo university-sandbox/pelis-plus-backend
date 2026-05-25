@@ -12,6 +12,8 @@ public record OrderDto(
     Double total,
     String status,
     String paymentStatus,
+    Integer membershipTicketsApplied,
+    Boolean requiresPayment,
     String createdAt
 ) {
 }
