@@ -165,7 +165,7 @@ public class OrderService {
 
         return new CreateOrderResponse(
             savedOrder.getId().toString(),
-            checkoutSession != null ? checkoutSession.id() : null,
+            null,
             checkoutSession != null ? checkoutSession.id() : null,
             checkoutSession != null ? checkoutSession.url() : null,
             orderDto,
@@ -201,7 +201,7 @@ public class OrderService {
         }
 
         StripeCheckoutSession checkoutSession = stripePaymentService.retrieveCheckoutSession(sessionId);
-        if (!"paid".equals(checkoutSession.paymentStatus())) {
+        if (!stripePaymentService.isPaidOrNoPaymentRequired(checkoutSession)) {
             throw new IllegalArgumentException("Stripe checkout session is not paid");
         }
 

@@ -1,8 +1,8 @@
 package com.example.template.membership;
 
 import com.example.template.security.UserPrincipal;
+import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,12 +42,11 @@ public class MembershipController {
     }
 
     @PostMapping("/subscribe")
-    public ResponseEntity<Map<String, String>> subscribe(
+    public ResponseEntity<MembershipSubscriptionResponse> subscribe(
         @RequestBody SubscribeRequest request,
         @AuthenticationPrincipal UserPrincipal principal
     ) {
-        String formToken = membershipService.subscribe(request.planId(), principal.getUser().getId());
-        return ResponseEntity.ok(Map.of("formToken", formToken, "planId", request.planId().toString()));
+        return ResponseEntity.ok(membershipService.subscribe(request.planId(), principal.getUser().getId()));
     }
 
     @PostMapping("/me/confirm")
@@ -56,6 +55,14 @@ public class MembershipController {
         @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.ok(membershipService.confirmSubscription(request.planId(), principal.getUser().getId()));
+    }
+
+    @PostMapping("/stripe/confirm")
+    public ResponseEntity<ActiveMembershipDto> confirmStripeCheckout(
+        @Valid @RequestBody ConfirmMembershipStripePayload payload,
+        @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(membershipService.confirmStripeCheckout(payload.sessionId(), principal.getUser().getId()));
     }
 
     @PatchMapping("/me/cancel")

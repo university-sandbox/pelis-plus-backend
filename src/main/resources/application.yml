@@ -43,6 +43,8 @@ app:
       currency: ${STRIPE_CURRENCY:pen}
       success-url: ${STRIPE_SUCCESS_URL:http://localhost:4200/checkout/stripe/success?order_id={ORDER_ID}&session_id={CHECKOUT_SESSION_ID}}
       cancel-url: ${STRIPE_CANCEL_URL:http://localhost:4200/checkout?payment=cancelled}
+      membership-success-url: ${STRIPE_MEMBERSHIP_SUCCESS_URL:http://localhost:4200/memberships/stripe/success?session_id={CHECKOUT_SESSION_ID}}
+      membership-cancel-url: ${STRIPE_MEMBERSHIP_CANCEL_URL:http://localhost:4200/memberships?payment=cancelled}
   security:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}

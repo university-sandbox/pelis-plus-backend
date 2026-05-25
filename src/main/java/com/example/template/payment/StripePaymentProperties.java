@@ -7,7 +7,9 @@ public record StripePaymentProperties(
     String secretKey,
     String currency,
     String successUrl,
-    String cancelUrl
+    String cancelUrl,
+    String membershipSuccessUrl,
+    String membershipCancelUrl
 ) {
     public boolean isConfigured() {
         return secretKey != null && !secretKey.isBlank();

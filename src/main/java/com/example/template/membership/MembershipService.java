@@ -2,9 +2,12 @@ package com.example.template.membership;
 
 import com.example.template.domain.AppUser;
 import com.example.template.domain.AppUserRepository;
+import com.example.template.payment.StripeCheckoutSession;
+import com.example.template.payment.StripePaymentService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -18,17 +21,20 @@ public class MembershipService {
     private final MembershipPlanBenefitRepository benefitRepository;
     private final ActiveMembershipRepository activeMembershipRepository;
     private final AppUserRepository appUserRepository;
+    private final StripePaymentService stripePaymentService;
 
     public MembershipService(
         MembershipPlanRepository planRepository,
         MembershipPlanBenefitRepository benefitRepository,
         ActiveMembershipRepository activeMembershipRepository,
-        AppUserRepository appUserRepository
+        AppUserRepository appUserRepository,
+        StripePaymentService stripePaymentService
     ) {
         this.planRepository = planRepository;
         this.benefitRepository = benefitRepository;
         this.activeMembershipRepository = activeMembershipRepository;
         this.appUserRepository = appUserRepository;
+        this.stripePaymentService = stripePaymentService;
     }
 
     public List<MembershipPlanDto> getPlans() {
@@ -55,13 +61,12 @@ public class MembershipService {
     }
 
     @Transactional
-    public String subscribe(UUID planId, UUID userId) {
-        planRepository.findById(planId)
+    public MembershipSubscriptionResponse subscribe(UUID planId, UUID userId) {
+        MembershipPlan plan = planRepository.findById(planId)
             .orElseThrow(() -> new EntityNotFoundException("Plan not found: " + planId));
 
-        // Return a mock form token for payment handoff. Activation happens only after payment confirmation.
-        String formToken = "MOCK_IZIPAY_MEMBERSHIP_" + userId.toString().substring(0, 8).toUpperCase() + "_" + planId.toString().substring(0, 8).toUpperCase();
-        return formToken;
+        StripeCheckoutSession checkoutSession = stripePaymentService.createMembershipCheckoutSession(plan, userId);
+        return new MembershipSubscriptionResponse(planId.toString(), checkoutSession.id(), checkoutSession.url());
     }
 
     @Transactional
@@ -81,6 +86,26 @@ public class MembershipService {
         membership.setDiscountUsed(java.math.BigDecimal.ZERO);
 
         return toActiveMembershipDto(activeMembershipRepository.save(membership));
+    }
+
+    @Transactional
+    public ActiveMembershipDto confirmStripeCheckout(String sessionId, UUID userId) {
+        StripeCheckoutSession checkoutSession = stripePaymentService.retrieveCheckoutSession(sessionId);
+        if (!stripePaymentService.isPaidOrNoPaymentRequired(checkoutSession)) {
+            throw new IllegalArgumentException("Stripe checkout session is not paid");
+        }
+
+        Map<String, String> metadata = stripePaymentService.retrieveCheckoutSessionMetadata(sessionId);
+        if (metadata == null || !userId.toString().equals(metadata.get("user_id"))) {
+            throw new IllegalArgumentException("Stripe checkout session does not belong to this user");
+        }
+
+        String planId = metadata.get("plan_id");
+        if (planId == null || planId.isBlank()) {
+            throw new IllegalArgumentException("Stripe checkout session is missing membership plan metadata");
+        }
+
+        return confirmSubscription(UUID.fromString(planId), userId);
     }
 
     @Transactional
