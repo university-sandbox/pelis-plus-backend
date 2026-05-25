@@ -1,0 +1,185 @@
+@startuml ConceptualModel
+title PelisPlus — Conceptual Domain Model
+
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #2C3E50
+skinparam classHeaderBackgroundColor #D6E4F0
+skinparam classHeaderFontColor #1A1A1A
+skinparam classFontColor #1A1A1A
+skinparam classFontSize 13
+skinparam classHeaderFontSize 14
+skinparam arrowColor #2C3E50
+skinparam arrowThickness 1.5
+skinparam linetype polyline
+skinparam nodesep 80
+skinparam ranksep 100
+skinparam shadowing false
+skinparam backgroundColor #FFFFFF
+skinparam titleFontColor #1A1A1A
+skinparam titleFontSize 16
+
+hide empty members
+hide circle
+
+' ══════════════════════════════════
+'  USER & MEMBERSHIP
+' ══════════════════════════════════
+class User {
+  name
+  email
+  role
+}
+
+class ActiveMembership {
+  valid until
+  tickets used
+  discount accumulated
+}
+
+class MembershipPlan {
+  name (Silver / Gold / Black)
+  monthly price
+  discount percentage
+  tickets included per month
+}
+
+class PlanBenefit {
+  description
+}
+
+' ══════════════════════════════════
+'  MOVIE CATALOG
+' ══════════════════════════════════
+class Movie {
+  title
+  overview
+  release date
+  runtime (min)
+  rating
+  status
+}
+
+class Genre {
+  name
+}
+
+' ══════════════════════════════════
+'  VENUE & ROOMS
+' ══════════════════════════════════
+class Venue {
+  name
+  address
+  city
+}
+
+class Room {
+  name
+  capacity
+  type (2D / 3D / IMAX)
+}
+
+' ══════════════════════════════════
+'  SCREENING & SEATS
+' ══════════════════════════════════
+class Screening {
+  date
+  time
+  format
+  base price
+  status
+}
+
+class Seat {
+  row
+  number
+  type (standard / VIP)
+  status (free / reserved / occupied)
+}
+
+class SeatReservation {
+  expires at
+}
+
+' ══════════════════════════════════
+'  SNACKS
+' ══════════════════════════════════
+class Snack {
+  name
+  category
+  price
+}
+
+class SnackOption {
+  label (e.g. Size / Flavor)
+  available choices
+}
+
+' ══════════════════════════════════
+'  ORDER & TICKETS
+' ══════════════════════════════════
+class Order {
+  subtotal
+  discount applied
+  total
+  status
+  payment status
+}
+
+class OrderTicket {
+  movie
+  venue / room
+  date and time
+  format
+  price
+}
+
+class OrderSnack {
+  name
+  quantity
+  unit price
+  selected options
+}
+
+class Ticket {
+  booking code
+  QR data
+  issued at
+}
+
+' ══════════════════════════════════
+'  RELATIONSHIPS
+' ══════════════════════════════════
+
+' User
+User "1" -- "0..1" ActiveMembership       : subscribes to
+ActiveMembership "*" -- "1" MembershipPlan : based on
+MembershipPlan "1" *-- "1..*" PlanBenefit  : includes
+
+' Catalog
+Movie "*" -- "1..*" Genre                  : classified by
+
+' Venue
+Venue "1" *-- "1..*" Room                  : contains
+
+' Screening
+Room "1" -- "1..*" Screening               : schedules
+Movie "1" -- "1..*" Screening              : shown in
+Screening "1" *-- "1..*" Seat              : has
+
+' Seat reservation
+User "1" -- "0..*" SeatReservation         : places
+SeatReservation "1" -- "1" Seat            : temporarily holds
+
+' Snacks
+Snack "1" *-- "0..*" SnackOption           : customizable with
+
+' Order
+User "1" -- "0..*" Order                   : places
+Order "1" *-- "1..*" OrderTicket           : contains
+Order "1" *-- "0..*" OrderSnack            : includes
+OrderTicket "*" -- "1" Screening           : booked for
+OrderTicket "*" -- "1" Seat               : occupies
+OrderSnack "*" -- "1" Snack               : references
+OrderTicket "1" -- "0..1" Ticket          : generates on payment
+
+@enduml
