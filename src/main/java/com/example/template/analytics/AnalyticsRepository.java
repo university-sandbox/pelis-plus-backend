@@ -73,19 +73,37 @@ public interface AnalyticsRepository extends JpaRepository<Order, java.util.UUID
     // --- Revenue Series ---
 
     @Query(value = """
-        SELECT TO_CHAR(DATE_TRUNC(:bucket, o.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS label,
+        SELECT TO_CHAR(DATE_TRUNC('hour', o.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD HH24:00') AS label,
                COALESCE(SUM(o.total), 0) AS revenue
         FROM orders o
         WHERE o.status = 'confirmed' AND o.payment_status = 'approved'
           AND o.created_at BETWEEN :from AND :to
-        GROUP BY DATE_TRUNC(:bucket, o.created_at AT TIME ZONE 'UTC')
-        ORDER BY DATE_TRUNC(:bucket, o.created_at AT TIME ZONE 'UTC')
+        GROUP BY DATE_TRUNC('hour', o.created_at AT TIME ZONE 'UTC')
+        ORDER BY DATE_TRUNC('hour', o.created_at AT TIME ZONE 'UTC')
         """, nativeQuery = true)
-    List<Object[]> revenueSeriesRaw(
-        @Param("from") Instant from,
-        @Param("to") Instant to,
-        @Param("bucket") String bucket
-    );
+    List<Object[]> revenueSeriesByHour(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(value = """
+        SELECT TO_CHAR(DATE_TRUNC('day', o.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS label,
+               COALESCE(SUM(o.total), 0) AS revenue
+        FROM orders o
+        WHERE o.status = 'confirmed' AND o.payment_status = 'approved'
+          AND o.created_at BETWEEN :from AND :to
+        GROUP BY DATE_TRUNC('day', o.created_at AT TIME ZONE 'UTC')
+        ORDER BY DATE_TRUNC('day', o.created_at AT TIME ZONE 'UTC')
+        """, nativeQuery = true)
+    List<Object[]> revenueSeriesByDay(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(value = """
+        SELECT TO_CHAR(DATE_TRUNC('week', o.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS label,
+               COALESCE(SUM(o.total), 0) AS revenue
+        FROM orders o
+        WHERE o.status = 'confirmed' AND o.payment_status = 'approved'
+          AND o.created_at BETWEEN :from AND :to
+        GROUP BY DATE_TRUNC('week', o.created_at AT TIME ZONE 'UTC')
+        ORDER BY DATE_TRUNC('week', o.created_at AT TIME ZONE 'UTC')
+        """, nativeQuery = true)
+    List<Object[]> revenueSeriesByWeek(@Param("from") Instant from, @Param("to") Instant to);
 
     // --- Revenue Breakdown ---
 
@@ -234,18 +252,34 @@ public interface AnalyticsRepository extends JpaRepository<Order, java.util.UUID
     // --- Users ---
 
     @Query(value = """
-        SELECT TO_CHAR(DATE_TRUNC(:bucket, u.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS label,
+        SELECT TO_CHAR(DATE_TRUNC('hour', u.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD HH24:00') AS label,
                COUNT(u.id) AS cnt
         FROM app_users u
         WHERE u.created_at BETWEEN :from AND :to
-        GROUP BY DATE_TRUNC(:bucket, u.created_at AT TIME ZONE 'UTC')
-        ORDER BY DATE_TRUNC(:bucket, u.created_at AT TIME ZONE 'UTC')
+        GROUP BY DATE_TRUNC('hour', u.created_at AT TIME ZONE 'UTC')
+        ORDER BY DATE_TRUNC('hour', u.created_at AT TIME ZONE 'UTC')
         """, nativeQuery = true)
-    List<Object[]> userRegistrationsRaw(
-        @Param("from") Instant from,
-        @Param("to") Instant to,
-        @Param("bucket") String bucket
-    );
+    List<Object[]> userRegistrationsByHour(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(value = """
+        SELECT TO_CHAR(DATE_TRUNC('day', u.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS label,
+               COUNT(u.id) AS cnt
+        FROM app_users u
+        WHERE u.created_at BETWEEN :from AND :to
+        GROUP BY DATE_TRUNC('day', u.created_at AT TIME ZONE 'UTC')
+        ORDER BY DATE_TRUNC('day', u.created_at AT TIME ZONE 'UTC')
+        """, nativeQuery = true)
+    List<Object[]> userRegistrationsByDay(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(value = """
+        SELECT TO_CHAR(DATE_TRUNC('week', u.created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS label,
+               COUNT(u.id) AS cnt
+        FROM app_users u
+        WHERE u.created_at BETWEEN :from AND :to
+        GROUP BY DATE_TRUNC('week', u.created_at AT TIME ZONE 'UTC')
+        ORDER BY DATE_TRUNC('week', u.created_at AT TIME ZONE 'UTC')
+        """, nativeQuery = true)
+    List<Object[]> userRegistrationsByWeek(@Param("from") Instant from, @Param("to") Instant to);
 
     @Query(value = """
         SELECT CAST(COUNT(DISTINCT o.user_id) AS FLOAT) / NULLIF(CAST(COUNT(DISTINCT u.id) AS FLOAT), 0)

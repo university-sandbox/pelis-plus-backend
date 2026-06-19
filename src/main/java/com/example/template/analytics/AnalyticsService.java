@@ -45,13 +45,6 @@ public class AnalyticsService {
         };
     }
 
-    private String bucketFor(AnalyticsPeriod period) {
-        return switch (period) {
-            case TODAY -> "hour";
-            case WEEK, MONTH -> "day";
-            case YEAR -> "week";
-        };
-    }
 
     // --- KPIs ---
 
@@ -74,15 +67,17 @@ public class AnalyticsService {
     // --- Revenue Series ---
 
     public List<RevenueSeriesDto> getRevenueSeries(AnalyticsPeriod period) {
-        Instant from   = periodStart(period);
-        Instant to     = periodEnd();
-        String bucket  = bucketFor(period);
+        Instant from = periodStart(period);
+        Instant to   = periodEnd();
 
-        return repo.revenueSeriesRaw(from, to, bucket).stream()
-            .map(r -> new RevenueSeriesDto(
-                (String) r[0],
-                toBigDecimal(r[1])
-            ))
+        List<Object[]> rows = switch (period) {
+            case TODAY        -> repo.revenueSeriesByHour(from, to);
+            case WEEK, MONTH  -> repo.revenueSeriesByDay(from, to);
+            case YEAR         -> repo.revenueSeriesByWeek(from, to);
+        };
+
+        return rows.stream()
+            .map(r -> new RevenueSeriesDto((String) r[0], toBigDecimal(r[1])))
             .toList();
     }
 
@@ -182,11 +177,16 @@ public class AnalyticsService {
     // --- Users ---
 
     public List<TimeSeriesDto> getUserRegistrations(AnalyticsPeriod period) {
-        Instant from  = periodStart(period);
-        Instant to    = periodEnd();
-        String bucket = bucketFor(period);
+        Instant from = periodStart(period);
+        Instant to   = periodEnd();
 
-        return repo.userRegistrationsRaw(from, to, bucket).stream()
+        List<Object[]> rows = switch (period) {
+            case TODAY        -> repo.userRegistrationsByHour(from, to);
+            case WEEK, MONTH  -> repo.userRegistrationsByDay(from, to);
+            case YEAR         -> repo.userRegistrationsByWeek(from, to);
+        };
+
+        return rows.stream()
             .map(r -> new TimeSeriesDto((String) r[0], toLong(r[1])))
             .toList();
     }
