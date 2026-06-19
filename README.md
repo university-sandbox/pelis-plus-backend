@@ -178,20 +178,20 @@ Each command deletes previous seed data before inserting, so it is safe to re-ru
 **Locally:**
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--spring.main.web-application-type=NONE --seed=month"
-mvn spring-boot:run -Dspring-boot.run.arguments="--spring.main.web-application-type=NONE --seed=week"
-mvn spring-boot:run -Dspring-boot.run.arguments="--spring.main.web-application-type=NONE --seed=today"
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=seed --seed=month"
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=seed --seed=week"
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=seed --seed=today"
 ```
 
 **In production (from the backend container terminal in Dokploy):**
 
 ```bash
-java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=month
-java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=week
-java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=today
+java -jar /app/app.jar --spring.profiles.active=seed --seed=month
+java -jar /app/app.jar --spring.profiles.active=seed --seed=week
+java -jar /app/app.jar --spring.profiles.active=seed --seed=today
 ```
 
-The `--spring.main.web-application-type=NONE` flag prevents the HTTP server from starting,
+The `seed` profile (defined in `application-seed.yml`) disables the HTTP server and Spring Security,
 so the command runs alongside the live app without touching port 8080.
 
 Seed data is identified by the email pattern `%@seed.pelisplus.com` and can be removed at any time:

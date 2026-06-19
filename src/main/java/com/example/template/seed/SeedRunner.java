@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 /**
  * CLI seed command. Run without starting the HTTP server:
  *
- *   java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=month
- *   java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=week
- *   java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=today
+ *   java -jar /app/app.jar --spring.profiles.active=seed --seed=month
+ *   java -jar /app/app.jar --spring.profiles.active=seed --seed=week
+ *   java -jar /app/app.jar --spring.profiles.active=seed --seed=today
  */
 @Component
 public class SeedRunner implements ApplicationRunner {
