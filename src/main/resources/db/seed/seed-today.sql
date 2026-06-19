@@ -20,8 +20,8 @@ DECLARE
   v_bcrypt      TEXT   := '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
 
   -- Movies (dynamic)
-  v_movie_ids    UUID[] := ARRAY[]::UUID[];
-  v_movie_titles TEXT[] := ARRAY[]::TEXT[];
+  v_movie_ids    BIGINT[] := ARRAY[]::BIGINT[];
+  v_movie_titles TEXT[]   := ARRAY[]::TEXT[];
   v_tmp_movie    RECORD;
 
   -- Rooms (dynamic)
@@ -141,13 +141,12 @@ BEGIN
 
   FOR i IN 1..8 LOOP
     v_user_id := gen_random_uuid();
-    INSERT INTO app_users(id, email, password, first_name, last_name, role, created_at)
+    INSERT INTO app_users(id, email, password, name, role, created_at)
     VALUES (
       v_user_id,
       'u' || i || '@seed.pelisplus.com',
       v_bcrypt,
-      v_first_names[i],
-      v_last_names[i],
+      v_first_names[i] || ' ' || v_last_names[i],
       'USER',
       -- First 5 users registered today, last 3 earlier (for realistic rate context)
       CASE WHEN i <= 5

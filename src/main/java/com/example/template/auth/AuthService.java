@@ -8,6 +8,7 @@ import com.example.template.security.UserPrincipal;
 import com.example.template.user.UserProfileDto;
 import com.example.template.user.UserService;
 import java.util.Locale;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnWebApplication
 public class AuthService {
 
     private final AppUserRepository appUserRepository;
