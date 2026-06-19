@@ -170,6 +170,36 @@ mvn clean verify
 mvn spring-boot:run
 ```
 
+### Seed analytics demo data
+
+Populates the database with realistic demo orders for the analytics dashboard.
+Each command deletes previous seed data before inserting, so it is safe to re-run.
+
+**Locally:**
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.main.web-application-type=NONE --seed=month"
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.main.web-application-type=NONE --seed=week"
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.main.web-application-type=NONE --seed=today"
+```
+
+**In production (from the backend container terminal in Dokploy):**
+
+```bash
+java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=month
+java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=week
+java -jar /app/app.jar --spring.main.web-application-type=NONE --seed=today
+```
+
+The `--spring.main.web-application-type=NONE` flag prevents the HTTP server from starting,
+so the command runs alongside the live app without touching port 8080.
+
+Seed data is identified by the email pattern `%@seed.pelisplus.com` and can be removed at any time:
+
+```sql
+DELETE FROM app_users WHERE email LIKE '%@seed.pelisplus.com';
+```
+
 ### Run TMDB movie sync manually
 
 ```bash
