@@ -1,3 +1,5 @@
+// TODO: exponer endpoint para reenviar ticket por correo si el usuario lo pierde
+
 package com.example.template.ticket;
 
 import com.example.template.security.UserPrincipal;
