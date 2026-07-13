@@ -241,3 +241,5 @@ src/main/java/com/example/template
 ├── domain
 └── security
 ```
+## Notas del equipo
+- Integrante: Reichel Saavedra — revisando flujo de notificaciones y reportes (Sprint avance 03).
