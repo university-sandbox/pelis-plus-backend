@@ -4,6 +4,7 @@ import com.example.template.domain.AppUser;
 import com.example.template.domain.AppUserRepository;
 import com.example.template.membership.ActiveMembership;
 import com.example.template.membership.ActiveMembershipRepository;
+import com.example.template.notification.OrderConfirmedEvent;
 import com.example.template.payment.StripeCheckoutSession;
 import com.example.template.payment.StripePaymentService;
 import com.example.template.screening.Screening;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -43,6 +45,7 @@ public class OrderService {
     private final SnackRepository snackRepository;
     private final ActiveMembershipRepository activeMembershipRepository;
     private final StripePaymentService stripePaymentService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OrderService(
         OrderRepository orderRepository,
@@ -54,7 +57,8 @@ public class OrderService {
         SeatRepository seatRepository,
         SnackRepository snackRepository,
         ActiveMembershipRepository activeMembershipRepository,
-        StripePaymentService stripePaymentService
+        StripePaymentService stripePaymentService,
+        ApplicationEventPublisher eventPublisher
     ) {
         this.orderRepository = orderRepository;
         this.orderTicketRepository = orderTicketRepository;
@@ -66,6 +70,7 @@ public class OrderService {
         this.snackRepository = snackRepository;
         this.activeMembershipRepository = activeMembershipRepository;
         this.stripePaymentService = stripePaymentService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -216,6 +221,7 @@ public class OrderService {
         orderRepository.save(order);
 
         issueTickets(order);
+        eventPublisher.publishEvent(new OrderConfirmedEvent(order.getId()));
 
         return toDto(order);
     }
