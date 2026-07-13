@@ -1,3 +1,4 @@
+// TODO: registrar log de auditoría cuando se aplique descuento de membresía
 package com.example.template.membership;
 
 import com.example.template.domain.AppUser;
