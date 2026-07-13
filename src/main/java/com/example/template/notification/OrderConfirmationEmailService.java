@@ -114,11 +114,13 @@ public class OrderConfirmationEmailService {
         );
         helper.addAttachment("entradas-" + order.getId() + ".pdf", new ByteArrayResource(ticketPdf));
         logger.info(
-            "Sending confirmation email for order {} (recipient={}, smtpHost={}, smtpPort={})",
+            "Sending confirmation email for order {} (recipient={}, smtpHost={}, smtpPort={}, startTls={}, ssl={})",
             order.getId(),
             "test-recipient",
             mailProperties.getHost(),
-            mailProperties.getPort()
+            mailProperties.getPort(),
+            mailProperties.getProperties().get("mail.smtp.starttls.enable"),
+            mailProperties.getProperties().get("mail.smtp.ssl.enable")
         );
         mailSender.send(message);
         logger.info("Confirmation email sent successfully for order {}", order.getId());

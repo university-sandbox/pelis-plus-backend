@@ -51,6 +51,15 @@ public class OrderController {
         return ResponseEntity.ok(orderService.confirmStripeCheckout(payload.sessionId(), principal.getUser().getId()));
     }
 
+    @PostMapping("/{id}/confirmation-email")
+    public ResponseEntity<Void> resendConfirmationEmail(
+        @PathVariable UUID id,
+        @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        orderService.resendConfirmationEmail(id, principal.getUser().getId());
+        return ResponseEntity.accepted().build();
+    }
+
     @GetMapping("/me")
     public ResponseEntity<Page<OrderDto>> getMyOrders(
         @AuthenticationPrincipal UserPrincipal principal,

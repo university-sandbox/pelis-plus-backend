@@ -221,6 +221,27 @@ public class OrderService {
         return confirmOrderInternal(order);
     }
 
+    /**
+     * Temporary authenticated diagnostic action for a buyer to retry the
+     * confirmation email of one of their already confirmed orders.
+     */
+    @Transactional
+    public void resendConfirmationEmail(UUID orderId, UUID userId) {
+        Order order = orderRepository.findByIdAndUserId(orderId, userId)
+            .orElseThrow(() -> new EntityNotFoundException("Order not found: " + orderId));
+
+        if (!"confirmed".equals(order.getStatus())) {
+            throw new IllegalArgumentException("Only confirmed orders can resend their confirmation email");
+        }
+        if (ticketRepository.findByOrderId(order.getId()).isEmpty()) {
+            throw new IllegalStateException("Confirmed order has no tickets to email");
+        }
+
+        logger.info("Manual confirmation email requested for order {}", order.getId());
+        eventPublisher.publishEvent(new OrderConfirmedEvent(order.getId()));
+        logger.info("Manual confirmation email event published for order {}", order.getId());
+    }
+
     private OrderDto confirmOrderInternal(Order order) {
         logger.info("Confirming order {} and issuing its tickets", order.getId());
         consumeMembershipTickets(order);

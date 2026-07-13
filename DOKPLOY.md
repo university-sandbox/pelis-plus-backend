@@ -46,6 +46,10 @@ SWAGGER_UI_PATH=/swagger-ui.html
 MAIL_ENABLED=true
 MAIL_SMTP_HOST=smtp-relay.brevo.com
 MAIL_SMTP_PORT=587
+# Use STARTTLS with ports 587/2525. If you use port 465 instead, set these
+# values to false/true respectively.
+MAIL_SMTP_STARTTLS_ENABLED=true
+MAIL_SMTP_SSL_ENABLED=false
 MAIL_SMTP_USERNAME=your_brevo_smtp_login
 MAIL_SMTP_KEY=your_brevo_smtp_key
 # A verified sender configured in Brevo
