@@ -17,6 +17,17 @@ spring:
     open-in-view: false
   flyway:
     enabled: false
+  mail:
+    host: ${MAIL_SMTP_HOST:smtp-relay.brevo.com}
+    port: ${MAIL_SMTP_PORT:587}
+    username: ${MAIL_SMTP_USERNAME:}
+    password: ${MAIL_SMTP_KEY:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   servlet:
@@ -54,6 +65,9 @@ app:
       cancel-url: ${STRIPE_CANCEL_URL:http://localhost:4200/checkout?payment=cancelled}
       membership-success-url: ${STRIPE_MEMBERSHIP_SUCCESS_URL:http://localhost:4200/memberships/stripe/success?session_id={CHECKOUT_SESSION_ID}}
       membership-cancel-url: ${STRIPE_MEMBERSHIP_CANCEL_URL:http://localhost:4200/memberships?payment=cancelled}
+  email:
+    enabled: ${MAIL_ENABLED:false}
+    test-recipient: ${MAIL_TEST_RECIPIENT:}
   security:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}
