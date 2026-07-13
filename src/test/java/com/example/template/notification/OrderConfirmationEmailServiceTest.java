@@ -41,30 +41,38 @@ class OrderConfirmationEmailServiceTest {
         when(ticketPdfService.createPdf(order, List.of(ticket))).thenReturn(new byte[] {1, 2, 3});
         when(mailSender.createMimeMessage()).thenReturn(message);
 
-        service(true).onOrderConfirmed(new OrderConfirmedEvent(orderId));
+        service(true, "test@gmail.com").onOrderConfirmed(new OrderConfirmedEvent(orderId));
 
         verify(mailSender).send(message);
         assertThat(message.getAllRecipients()).extracting(Object::toString).containsExactly("test@gmail.com");
-        assertThat(message.getFrom()).extracting(Object::toString).containsExactly("verified@brevo.example");
+        assertThat(message.getFrom()).extracting(Object::toString).containsExactly("tickets@pelisplus.example");
     }
 
     @Test
     void doesNotSendWhenEmailIsDisabled() {
-        service(false).onOrderConfirmed(new OrderConfirmedEvent(UUID.randomUUID()));
+        service(false, "").onOrderConfirmed(new OrderConfirmedEvent(UUID.randomUUID()));
 
         verifyNoInteractions(orderRepository, ticketRepository, ticketPdfService, mailSender);
     }
 
-    private OrderConfirmationEmailService service(boolean enabled) {
+    @Test
+    void doesNotSendWhenNoTestRecipientIsConfigured() {
+        service(true, "").onOrderConfirmed(new OrderConfirmedEvent(UUID.randomUUID()));
+
+        verifyNoInteractions(orderRepository, ticketRepository, ticketPdfService, mailSender);
+    }
+
+    private OrderConfirmationEmailService service(boolean enabled, String testRecipient) {
         MailProperties mailProperties = new MailProperties();
         mailProperties.setUsername("verified@brevo.example");
+        mailProperties.setPassword("smtp-key");
         return new OrderConfirmationEmailService(
             orderRepository,
             ticketRepository,
             ticketPdfService,
             mailSender,
             mailProperties,
-            new EmailProperties(enabled, "test@gmail.com")
+            new EmailProperties(enabled, testRecipient, "tickets@pelisplus.example")
         );
     }
 

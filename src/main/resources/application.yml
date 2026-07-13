@@ -28,6 +28,9 @@ spring:
           auth: true
           starttls:
             enable: true
+          connectiontimeout: ${MAIL_SMTP_CONNECTION_TIMEOUT_MS:10000}
+          timeout: ${MAIL_SMTP_TIMEOUT_MS:20000}
+          writetimeout: ${MAIL_SMTP_WRITE_TIMEOUT_MS:20000}
 
 server:
   servlet:
@@ -68,6 +71,7 @@ app:
   email:
     enabled: ${MAIL_ENABLED:false}
     test-recipient: ${MAIL_TEST_RECIPIENT:}
+    from-address: ${MAIL_FROM_ADDRESS:}
   security:
     jwt:
       secret: ${JWT_SECRET:VGhpc0lzQVNlY3VyZUFuZExvbmdCYXNlNjRTZWNyZXRLZXlGb3JKV1Q=}

@@ -41,9 +41,21 @@ JWT_ISSUER=pelis-plus
 
 SWAGGER_ENABLED=false
 SWAGGER_UI_PATH=/swagger-ui.html
+
+# Confirmation emails (Brevo SMTP)
+MAIL_ENABLED=true
+MAIL_SMTP_HOST=smtp-relay.brevo.com
+MAIL_SMTP_PORT=587
+MAIL_SMTP_USERNAME=your_brevo_smtp_login
+MAIL_SMTP_KEY=your_brevo_smtp_key
+# A verified sender configured in Brevo
+MAIL_FROM_ADDRESS=entradas@your-domain.com
+# Required. All confirmation emails, including production, are sent here.
+MAIL_TEST_RECIPIENT=your-test-recipient@example.com
 ```
 
 > **Tip:** Keep `SWAGGER_ENABLED=false` in production.
+> The backend logs each confirmation-email stage with the order ID. It never logs SMTP credentials or the purchaser's email address.
 
 ---
 

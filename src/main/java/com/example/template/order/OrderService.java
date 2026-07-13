@@ -29,11 +29,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
     private final OrderTicketRepository orderTicketRepository;
@@ -201,12 +205,16 @@ public class OrderService {
         Order order = orderRepository.findByStripeCheckoutSessionIdAndUserId(sessionId, userId)
             .orElseThrow(() -> new EntityNotFoundException("Order not found for Stripe session: " + sessionId));
 
+        logger.info("Stripe checkout confirmation requested for order {}", order.getId());
+
         if ("confirmed".equals(order.getStatus())) {
+            logger.info("Order {} was already confirmed; no new confirmation email event will be published", order.getId());
             return toDto(order);
         }
 
         StripeCheckoutSession checkoutSession = stripePaymentService.retrieveCheckoutSession(sessionId);
         if (!stripePaymentService.isPaidOrNoPaymentRequired(checkoutSession)) {
+            logger.warn("Stripe checkout for order {} is not paid; confirmation was not completed", order.getId());
             throw new IllegalArgumentException("Stripe checkout session is not paid");
         }
 
@@ -214,6 +222,7 @@ public class OrderService {
     }
 
     private OrderDto confirmOrderInternal(Order order) {
+        logger.info("Confirming order {} and issuing its tickets", order.getId());
         consumeMembershipTickets(order);
 
         order.setStatus("confirmed");
@@ -222,6 +231,7 @@ public class OrderService {
 
         issueTickets(order);
         eventPublisher.publishEvent(new OrderConfirmedEvent(order.getId()));
+        logger.info("Order {} confirmed; confirmation email event published", order.getId());
 
         return toDto(order);
     }
